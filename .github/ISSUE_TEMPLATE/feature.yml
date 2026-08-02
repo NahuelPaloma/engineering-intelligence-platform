@@ -1,0 +1,29 @@
+name: Feature proposal
+description: Propose a capability backed by a demonstrated need.
+title: "feat: "
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: Explain the need before proposing repository structure or implementation.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What concrete problem or vertical slice demonstrates this need?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: What observable outcome would solve the problem?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and alternatives
+      description: What is in scope, out of scope, and what alternatives were considered?
+    validations:
+      required: true
