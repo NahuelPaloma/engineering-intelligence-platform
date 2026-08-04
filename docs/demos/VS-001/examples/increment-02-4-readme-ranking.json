@@ -1,0 +1,24 @@
+{
+  "documents": [
+    {
+      "path": "src/payments/processing/README.md",
+      "score": 100,
+      "reason": "same_directory"
+    },
+    {
+      "path": "src/payments/README.md",
+      "score": 80,
+      "reason": "nearest_ancestor"
+    },
+    {
+      "path": "src/README.md",
+      "score": 60,
+      "reason": "nearest_ancestor"
+    },
+    {
+      "path": "README.md",
+      "score": 10,
+      "reason": "repository_root"
+    }
+  ]
+}

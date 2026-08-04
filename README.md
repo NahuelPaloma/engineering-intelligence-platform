@@ -52,7 +52,8 @@ output/<pack-id>/
 ├── manifest.json
 ├── readmes.json
 ├── readme-contents.json
-└── readme-metadata.json
+├── readme-metadata.json
+└── readme-ranking.json
 ```
 
 The pack ID is derived from repository, Pull Request number, base SHA and head
@@ -73,6 +74,10 @@ generic per-document error without stopping the remaining reads.
 H1 and a purpose from the first nearby descriptive paragraph. Missing evidence
 produces `null`; no external source or inference engine is used.
 
+`readme-ranking.json` combines paths from `readme-metadata.json` with discovery
+relations from `readmes.json`. It applies fixed location scores and orders ties
+by ordinal path without reading repository files or README content.
+
 See the [Increment 1 demo](docs/demos/VS-001/increment-01.md) and its
 [example manifest](docs/demos/VS-001/examples/increment-01-manifest.json). The
 next baby step is recorded in the
@@ -84,3 +89,6 @@ Content reading is demonstrated in
 Deterministic metadata extraction is demonstrated in
 [Increment 2.3](docs/demos/VS-001/increment-02-3.md), with an
 [example metadata file](docs/demos/VS-001/examples/increment-02-3-readme-metadata.json).
+Deterministic location ranking is demonstrated in
+[Increment 2.4](docs/demos/VS-001/increment-02-4.md), with an
+[example ranking file](docs/demos/VS-001/examples/increment-02-4-readme-ranking.json).

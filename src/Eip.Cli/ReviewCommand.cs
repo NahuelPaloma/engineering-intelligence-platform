@@ -44,7 +44,10 @@ public sealed class ReviewCommand(
             readmesPath,
             repositoryRoot,
             cancellationToken);
-        await ReadmeMetadataExtractor.WriteAsync(readmeContentsPath, cancellationToken);
+        var metadataPath = await ReadmeMetadataExtractor.WriteAsync(
+            readmeContentsPath,
+            cancellationToken);
+        await ReadmeRankingGenerator.WriteAsync(metadataPath, readmesPath, cancellationToken);
         return manifestPath;
     }
 
