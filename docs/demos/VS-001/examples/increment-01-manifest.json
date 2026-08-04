@@ -1,0 +1,25 @@
+{
+  "repository": "example/widgets",
+  "owner": "example",
+  "pull_request": 123,
+  "title": "Add widget endpoint",
+  "author": "octocat",
+  "base_sha": "1111111111111111111111111111111111111111",
+  "head_sha": "2222222222222222222222222222222222222222",
+  "commits": [
+    {
+      "sha": "2222222222222222222222222222222222222222",
+      "title": "feat: add widget endpoint",
+      "author": "octocat"
+    }
+  ],
+  "changed_files": [
+    {
+      "path": "src/widgets.cs",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 3
+    }
+  ],
+  "generated_at": "2026-08-03T12:00:00+00:00"
+}

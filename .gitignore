@@ -4,6 +4,7 @@ node_modules/
 .vs/
 TestResults/
 artifacts/
+output/
 .DS_Store
 *.log
 .idea/

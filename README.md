@@ -28,4 +28,33 @@ dotnet format --verify-no-changes --no-restore
 
 The solution contains one executable (`Eip.Cli`) and one test project
 (`Eip.Tests`). Logical boundaries will begin as namespaces and folders inside
-the executable. No VS-001 behavior has been implemented yet.
+the executable.
+
+### VS-001 Increment 1 — Evidence Collection
+
+Collect reproducible evidence from a GitHub Pull Request:
+
+```bash
+export EIP_GITHUB_REPOSITORIES="org/repo"
+export GITHUB_TOKEN="<fine-grained-read-only-token>" # Optional for public repositories
+dotnet run --project src/Eip.Cli -- review https://github.com/org/repo/pull/123
+```
+
+`EIP_GITHUB_REPOSITORIES` is required and accepts a comma-separated allowlist of
+`owner/repository` values. Repository matching is case-insensitive. Missing,
+empty or non-matching configuration rejects the request before GitHub is
+contacted.
+
+The command prints the generated file path:
+
+```text
+output/<pack-id>/manifest.json
+```
+
+The pack ID is derived from repository, Pull Request number, base SHA and head
+SHA. Re-running the command for the same revision updates the same manifest. The
+increment only collects Pull Request metadata, commits and changed files; it
+does not build context or produce analysis.
+
+See the [Increment 1 demo](docs/demos/VS-001/increment-01.md) and its
+[example manifest](docs/demos/VS-001/examples/increment-01-manifest.json).
