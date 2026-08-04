@@ -58,6 +58,7 @@ public sealed class ReviewCommandTests
             var manifestPath = await command.ExecuteAsync(
                 "https://github.com/example/widgets/pull/123",
                 outputRoot,
+                outputRoot,
                 CancellationToken.None);
 
             Assert.True(File.Exists(manifestPath));
@@ -84,6 +85,8 @@ public sealed class ReviewCommandTests
             Assert.Equal("head-sha", root.GetProperty("head_sha").GetString());
             Assert.Single(root.GetProperty("commits").EnumerateArray());
             Assert.Single(root.GetProperty("changed_files").EnumerateArray());
+            var readmesPath = Path.Combine(Path.GetDirectoryName(manifestPath)!, "readmes.json");
+            Assert.True(File.Exists(readmesPath));
         }
         finally
         {
@@ -122,6 +125,7 @@ public sealed class ReviewCommandTests
         {
             await Assert.ThrowsAsync<HttpRequestException>(() => command.ExecuteAsync(
                 "https://github.com/example/widgets/pull/123",
+                outputRoot,
                 outputRoot,
                 CancellationToken.None));
         }
@@ -173,6 +177,7 @@ public sealed class ReviewCommandTests
             await Assert.ThrowsAsync<HttpRequestException>(() => command.ExecuteAsync(
                 "https://github.com/example/widgets/pull/123",
                 outputRoot,
+                outputRoot,
                 CancellationToken.None));
         }
         finally
@@ -205,6 +210,7 @@ public sealed class ReviewCommandTests
         {
             await Assert.ThrowsAsync<HttpRequestException>(() => command.ExecuteAsync(
                 "https://github.com/example/widgets/pull/123",
+                outputRoot,
                 outputRoot,
                 CancellationToken.None));
         }

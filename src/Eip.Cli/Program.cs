@@ -23,6 +23,7 @@ public static class Program
                 TimeProvider.System);
             var manifestPath = await command.ExecuteAsync(
                 pullRequestUrl,
+                Environment.CurrentDirectory,
                 Path.Combine(Environment.CurrentDirectory, "output"),
                 CancellationToken.None);
 

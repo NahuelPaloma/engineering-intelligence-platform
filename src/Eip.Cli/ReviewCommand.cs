@@ -16,6 +16,7 @@ public sealed class ReviewCommand(
 
     public async Task<string> ExecuteAsync(
         string pullRequestUrl,
+        string repositoryRoot,
         string outputRoot,
         CancellationToken cancellationToken)
     {
@@ -38,6 +39,7 @@ public sealed class ReviewCommand(
         }
 
         File.Move(temporaryPath, manifestPath, true);
+        await ReadmeLocator.WriteAsync(manifestPath, repositoryRoot, cancellationToken);
         return manifestPath;
     }
 

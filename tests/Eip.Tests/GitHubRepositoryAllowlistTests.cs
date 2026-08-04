@@ -53,6 +53,7 @@ public sealed class GitHubRepositoryAllowlistTests
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => command.ExecuteAsync(
             "https://github.com/example/widgets/pull/123",
             Path.GetTempPath(),
+            Path.GetTempPath(),
             CancellationToken.None));
 
         Assert.Equal(0, handler.RequestCount);

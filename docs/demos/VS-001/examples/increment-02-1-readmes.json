@@ -1,0 +1,16 @@
+{
+  "candidate_readmes": [
+    {
+      "path": "src/payments/readme.md",
+      "reason": "changed file directory"
+    },
+    {
+      "path": "src/Readme.md",
+      "reason": "nearest ancestor of changed files"
+    },
+    {
+      "path": "README.md",
+      "reason": "repository root"
+    }
+  ]
+}
