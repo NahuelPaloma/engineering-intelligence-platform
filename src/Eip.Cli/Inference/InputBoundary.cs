@@ -50,7 +50,9 @@ internal static class InputBoundary
             using var document = JsonDocument.Parse(bytes);
             var root = document.RootElement;
             ValidateRoot(root);
-            return new InputBoundaryResult(root.GetProperty("pack_id").GetString()!);
+            return new InputBoundaryResult(
+                root.GetProperty("pack_id").GetString()!,
+                ReadDocuments(root.GetProperty("documents")));
         }
         catch (JsonException)
         {
@@ -71,11 +73,29 @@ internal static class InputBoundary
             throw new InvalidDataException("The local context is incompatible.");
         }
 
+        var paths = new HashSet<string>(StringComparer.Ordinal);
         foreach (var item in documents.EnumerateArray())
         {
             ValidateDocument(item);
+            if (!paths.Add(item.GetProperty("path").GetString()!))
+            {
+                throw new InvalidDataException("The local context contains ambiguous document identities.");
+            }
         }
     }
+
+    private static InputDocument[] ReadDocuments(JsonElement documents) =>
+        documents
+            .EnumerateArray()
+            .Select(document => new InputDocument(
+                document.GetProperty("path").GetString()!,
+                document.GetProperty("content").ValueKind == JsonValueKind.Null
+                    ? null
+                    : document.GetProperty("content").GetString(),
+                document.TryGetProperty("error", out var error) ? error.GetString() : null,
+                document.GetProperty("status").GetString()!))
+            .OrderBy(document => document.Path, StringComparer.Ordinal)
+            .ToArray();
 
     private static bool SupportedContractVersion(JsonElement root)
     {
@@ -92,7 +112,7 @@ internal static class InputBoundary
     private static void ValidateDocument(JsonElement document)
     {
         if (document.ValueKind != JsonValueKind.Object
-            || !RequiredString(document, "path")
+            || !RequiredRelativePath(document, "path")
             || !RequiredNonNegativeInteger(document, "score")
             || !RequiredAllowedString(document, "reason", AllowedReasons)
             || !RequiredNullableString(document, "name")
@@ -139,6 +159,21 @@ internal static class InputBoundary
         && value.ValueKind == JsonValueKind.String
         && !string.IsNullOrWhiteSpace(value.GetString());
 
+    private static bool RequiredRelativePath(JsonElement parent, string propertyName)
+    {
+        if (!RequiredString(parent, propertyName))
+        {
+            return false;
+        }
+
+        var path = parent.GetProperty(propertyName).GetString()!;
+        var segments = path.Split('/');
+        return path[0] != '/'
+            && !path.Contains('\\')
+            && !path.Any(char.IsControl)
+            && segments.All(segment => segment.Length > 0 && segment is not "." and not "..");
+    }
+
     private static bool RequiredNullableString(JsonElement parent, string propertyName) =>
         parent.TryGetProperty(propertyName, out var value)
         && value.ValueKind is JsonValueKind.String or JsonValueKind.Null;
@@ -175,4 +210,12 @@ internal static class InputBoundary
     }
 }
 
-internal sealed record InputBoundaryResult(string PackId);
+internal sealed record InputBoundaryResult(
+    string PackId,
+    IReadOnlyList<InputDocument> Documents);
+
+internal sealed record InputDocument(
+    string Path,
+    string? Content,
+    string? Error,
+    string Status);

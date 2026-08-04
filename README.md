@@ -5,9 +5,9 @@ transforms engineering knowledge into actionable intelligence.
 
 ## Current Status
 
-VS-001 Context Retrieval Pipeline is complete. Capability-002 Inference Engine
-implementation has started with an empty, executable pipeline that produces no
-inferences.
+VS-001 Context Retrieval Pipeline is complete. Capability-002 now implements its
+first reasoning transition from admitted Evidence to deterministic, traceable
+Claims.
 
 ## Documentation
 
@@ -89,11 +89,13 @@ ranking order, content, metadata, status and evidence without rereading or
 interpreting the repository. Inconsistent inputs fail without producing partial
 context.
 
-Capability-002 Increment 0 validates `local-context.json`, fixes the supported
-contract and empty Rule Set identities, and records the stable stage order in
-`inference-execution.json`. This temporary technical artifact reports
-`no_inferences` with every counter at zero. It is not an `inference-report` and
-the engine does not yet create Claims or perform reasoning.
+Capability-002 Increment 1 validates `local-context.json` and applies one fixed,
+descriptive Rule to each readable document. It produces immutable Evidence and
+the exact Claim `A context document is available at '<relative-path>'.`, with
+document Scope, minimum Confidence, explicit Uncertainty and traceability.
+Unreadable documents become observable local discards without degrading valid
+Claims. `inference-execution.json` remains a temporary technical artifact: no
+Hypotheses, Findings or Inference Report exist yet.
 
 See the [Increment 1 demo](docs/demos/VS-001/increment-01.md) and its
 [example manifest](docs/demos/VS-001/examples/increment-01-manifest.json). The
@@ -115,3 +117,6 @@ The completed retrieval pipeline is demonstrated in
 The empty Inference Engine pipeline is demonstrated in
 [Capability-002 Increment 0](docs/demos/Capability-002/increment-00.md), with an
 [example execution record](docs/demos/Capability-002/examples/increment-00-inference-execution.json).
+The first Evidence-to-Claim transition is demonstrated in
+[Capability-002 Increment 1](docs/demos/Capability-002/increment-01.md), with an
+[example claim execution](docs/demos/Capability-002/examples/increment-01-inference-execution.json).

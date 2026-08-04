@@ -1,0 +1,100 @@
+{
+  "execution_id": "1969c9398663134ffa16150a95895cfdde875fa3a49bb9586241a07c9bf95d72",
+  "input_pack_id": "f166a136da542904223312b67fbb42ba5d1436fd29a399f7956d02ef50525bdd",
+  "rule_set_id": "capability-002-document-availability-rules-v1",
+  "status": "claims_produced",
+  "stages": [
+    {
+      "name": "input_boundary",
+      "status": "completed"
+    },
+    {
+      "name": "claim_processing",
+      "status": "completed"
+    },
+    {
+      "name": "hypothesis_processing",
+      "status": "not_implemented"
+    },
+    {
+      "name": "finding_processing",
+      "status": "not_implemented"
+    },
+    {
+      "name": "report_builder",
+      "status": "not_implemented"
+    }
+  ],
+  "counts": {
+    "evidence": 1,
+    "claims": 1,
+    "hypotheses": 0,
+    "findings": 0,
+    "abstentions": 0,
+    "discarded_candidates": 1
+  },
+  "evidence": [
+    {
+      "evidence_id": "06a2788f3688df0fac10445d6f177c5da7af13cfdb93105bbd41e1e6929d4293",
+      "input_pack_id": "f166a136da542904223312b67fbb42ba5d1436fd29a399f7956d02ef50525bdd",
+      "document_path": "docs/payments/README.md",
+      "scope": {
+        "type": "document",
+        "document_path": "docs/payments/README.md"
+      },
+      "provenance": {
+        "contract": "local-context-v1",
+        "document_path": "docs/payments/README.md"
+      },
+      "availability_status": "available"
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "98186bb7035e8c22d3c030e0646a4d44ddee63ab51283bc3043eaa42311a90d1",
+      "statement": "A context document is available at 'docs/payments/README.md'.",
+      "evidence_ids": [
+        "06a2788f3688df0fac10445d6f177c5da7af13cfdb93105bbd41e1e6929d4293"
+      ],
+      "rule_id": "document-availability-claim",
+      "rule_version": 1,
+      "scope": {
+        "type": "document",
+        "document_path": "docs/payments/README.md"
+      },
+      "confidence": {
+        "level": "strong",
+        "basis": [
+          "document_explicitly_present",
+          "admitted_by_input_boundary",
+          "rule_describes_availability_only"
+        ],
+        "limitations": [
+          "content_not_evaluated",
+          "authority_not_evaluated",
+          "freshness_not_evaluated",
+          "semantic_relevance_not_evaluated"
+        ],
+        "dimensions": {
+          "directness": "strong",
+          "coverage": "strong",
+          "consistency": "strong",
+          "traceability": "strong",
+          "rule_constraints": "strong"
+        }
+      },
+      "uncertainty": [],
+      "status": "valid"
+    }
+  ],
+  "discarded_candidates": [
+    {
+      "candidate_type": "document_availability_claim",
+      "document_path": "docs/legacy/README.md",
+      "rule_id": "document-availability-claim",
+      "rule_version": 1,
+      "status": "discarded",
+      "reason": "document_not_readable"
+    }
+  ]
+}
