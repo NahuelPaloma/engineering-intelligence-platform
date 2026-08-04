@@ -40,6 +40,10 @@ Ante una contradicción prevalece la fuente de mayor autoridad. Este documento n
 modifica ninguna de ellas. Define la capability que comienza después del límite
 establecido por ADR-013.
 
+La Inference Engine Reasoning Specification es la fuente normativa única de las
+Laws, los Invariants y el comportamiento del razonamiento. Los resúmenes de este
+documento preservan autonomía de lectura, pero no redefinen esa normativa.
+
 ## 2. Contexto
 
 El Context Retrieval Pipeline de VS-001 quedó finalizado como primera
@@ -139,7 +143,7 @@ Los nombres de campos heredados por `local-context.json` son parte del contrato
 de procedencia. El motor puede conservarlos y citarlos, pero no les atribuye
 semántica externa ni los utiliza para consultar su origen.
 
-El motor razona sobre Evidence, Claims, Hypotheses, Rules, Confidence,
+El motor razona sobre Evidence, Claims, Hypotheses, Rules, Scope, Confidence,
 Uncertainty y Findings. La semántica específica de un producto pertenece al
 producto consumidor o a conocimiento declarativo explícitamente gobernado, no a
 suposiciones internas del motor.
@@ -398,6 +402,10 @@ Puede originarse en:
 - imposibilidad de verificar o falsar una Hypothesis con el contexto disponible;
 - campos nulos o errores declarados por el contrato de entrada.
 
+No toda Uncertainty proviene de una Contradiction. Toda Contradiction, en
+cambio, genera Uncertainty para las unidades cuyo respaldo, Confidence o Scope
+afecta.
+
 Toda Uncertainty debe indicar:
 
 - qué se desconoce o está en conflicto;
@@ -437,6 +445,18 @@ Cada vínculo debe responder:
 
 Una referencia rota invalida la unidad dependiente. La validación no inventa ni
 repara vínculos; rechaza o degrada el resultado.
+
+### 9.9 Scope
+
+**Scope** representa la frontera conceptual dentro de la cual una unidad es
+válida. Proviene de límites explícitos en Evidence, Rules y unidades de soporte;
+limita Claims, combinaciones, Hypotheses, Findings y Confidence.
+
+Dos Scope son compatibles cuando coinciden o poseen una intersección explícita
+dentro de la cual la relación continúa siendo válida. Dejan de ser compatibles
+cuando difieren en una condición esencial o sólo pueden combinarse eliminando
+una limitación material. La Reasoning Specification contiene su definición
+normativa completa.
 
 ## 10. Invariantes del razonamiento
 
