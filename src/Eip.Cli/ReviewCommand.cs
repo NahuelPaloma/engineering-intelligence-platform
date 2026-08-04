@@ -51,13 +51,14 @@ public sealed class ReviewCommand(
             metadataPath,
             readmesPath,
             cancellationToken);
-        await LocalContextBuilder.WriteAsync(
+        var localContextPath = await LocalContextBuilder.WriteAsync(
             manifestPath,
             readmesPath,
             readmeContentsPath,
             metadataPath,
             rankingPath,
             cancellationToken);
+        await Inference.InferencePipeline.ExecuteAsync(localContextPath, cancellationToken);
         return manifestPath;
     }
 

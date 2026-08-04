@@ -5,8 +5,9 @@ transforms engineering knowledge into actionable intelligence.
 
 ## Current Status
 
-VS-001 Context Retrieval Pipeline completed. The next block of work is the
-Inference Engine.
+VS-001 Context Retrieval Pipeline is complete. Capability-002 Inference Engine
+implementation has started with an empty, executable pipeline that produces no
+inferences.
 
 ## Documentation
 
@@ -54,7 +55,8 @@ output/<pack-id>/
 ├── readme-contents.json
 ├── readme-metadata.json
 ├── readme-ranking.json
-└── local-context.json
+├── local-context.json
+└── inference-execution.json
 ```
 
 The pack ID is derived from repository, Pull Request number, base SHA and head
@@ -87,6 +89,12 @@ ranking order, content, metadata, status and evidence without rereading or
 interpreting the repository. Inconsistent inputs fail without producing partial
 context.
 
+Capability-002 Increment 0 validates `local-context.json`, fixes the supported
+contract and empty Rule Set identities, and records the stable stage order in
+`inference-execution.json`. This temporary technical artifact reports
+`no_inferences` with every counter at zero. It is not an `inference-report` and
+the engine does not yet create Claims or perform reasoning.
+
 See the [Increment 1 demo](docs/demos/VS-001/increment-01.md) and its
 [example manifest](docs/demos/VS-001/examples/increment-01-manifest.json). The
 next baby step is recorded in the
@@ -104,3 +112,6 @@ Deterministic location ranking is demonstrated in
 The completed retrieval pipeline is demonstrated in
 [Increment 3.0](docs/demos/VS-001/increment-03-0.md), with an
 [example local context](docs/demos/VS-001/examples/increment-03-0-local-context.json).
+The empty Inference Engine pipeline is demonstrated in
+[Capability-002 Increment 0](docs/demos/Capability-002/increment-00.md), with an
+[example execution record](docs/demos/Capability-002/examples/increment-00-inference-execution.json).

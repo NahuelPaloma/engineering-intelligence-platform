@@ -95,6 +95,10 @@ public sealed class ReviewCommandTests
             Assert.True(File.Exists(rankingPath));
             var localContextPath = Path.Combine(Path.GetDirectoryName(manifestPath)!, "local-context.json");
             Assert.True(File.Exists(localContextPath));
+            var inferenceExecutionPath = Path.Combine(
+                Path.GetDirectoryName(manifestPath)!,
+                "inference-execution.json");
+            Assert.True(File.Exists(inferenceExecutionPath));
         }
         finally
         {

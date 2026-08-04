@@ -1,0 +1,35 @@
+{
+  "execution_id": "af2f3c5874d3b95005d707f78e2c35188ea41c3a41ae4275a632f225fce8e149",
+  "input_pack_id": "f166a136da542904223312b67fbb42ba5d1436fd29a399f7956d02ef50525bdd",
+  "rule_set_id": "capability-002-empty-rules-v1",
+  "status": "no_inferences",
+  "stages": [
+    {
+      "name": "input_boundary",
+      "status": "completed"
+    },
+    {
+      "name": "claim_processing",
+      "status": "not_implemented"
+    },
+    {
+      "name": "hypothesis_processing",
+      "status": "not_implemented"
+    },
+    {
+      "name": "finding_processing",
+      "status": "not_implemented"
+    },
+    {
+      "name": "report_builder",
+      "status": "not_implemented"
+    }
+  ],
+  "counts": {
+    "evidence": 0,
+    "claims": 0,
+    "hypotheses": 0,
+    "findings": 0,
+    "abstentions": 0
+  }
+}
