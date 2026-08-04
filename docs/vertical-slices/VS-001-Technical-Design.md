@@ -550,17 +550,16 @@ abstracción anticipada.
 
 ## 16. Decisiones técnicas indispensables
 
-### TD-01 — Aplicación modular única; runtime pendiente
+### TD-01 — Aplicación modular única en .NET 9
 
-**Decisión:** una sola CLI modular incorporada al repositorio. El lenguaje y el
-runtime se seleccionan durante el Incremento 0.
+**Decisión:** una sola CLI modular en .NET 9, incorporada al repositorio. Esta
+es una elección para el piloto VS-001, no una elección del lenguaje de EIP.
 
-La comparación se limita a las alternativas que el equipo pueda sostener y usa
-estos criterios: simplicidad total, velocidad de implementación, ecosistema de
-librerías, integración con Git y el Git Provider, validación de contratos,
-facilidad de pruebas y experiencia real del equipo. La presencia actual de
-Node.js 22 en el workflow documental es una señal, no una decisión de runtime
-para EIP. .NET, Node.js u otra alternativa sólo se elegirán con esa evaluación.
+La selección maximiza la probabilidad de éxito del piloto: experiencia del
+equipo, velocidad de implementación, soporte de CLI, integración con Git y el
+Git Provider, JSON/HTTP, testing y analyzers. El SDK se fija en `global.json` a
+la línea .NET 9 con roll-forward compatible. La decisión puede revisarse para
+otro slice sin alterar los límites de dominio.
 
 **Justificación:** RF-01, RF-03, RF-04, RF-14; estrategia modular-first;
 workflow actual del repositorio.
@@ -630,7 +629,7 @@ oportunidad.
 
 Este documento deliberadamente **no decide**:
 
-- lenguaje ni runtime;
+- lenguaje ni runtime definitivo de EIP;
 - proveedor o tecnología definitiva del Inference Engine;
 - proveedor Git definitivo de EIP;
 - CI de ejecución del producto;
@@ -665,40 +664,30 @@ posibilidad futura no es evidencia.
 
 ## 18. Estructura mínima de código propuesta
 
-No se crea esta estructura al aprobar el documento; orienta incrementos futuros.
+La fundación mantiene una sola frontera productiva y una sola frontera de tests:
 
 ```text
-src/vs001/
-├── cli.ts
-├── review-orchestrator.ts
-├── github.ts
-├── git.ts
-├── context-builder.ts
-├── analyze.ts
-├── validate.ts
-├── render.ts
-├── feedback.ts
-├── types.ts
-└── prompts/
-    └── architecture-review-v1.ts
-test/vs001/
-├── fixtures/
-├── unit/
-├── integration/
-├── contract/
-├── adversarial/
-└── evaluation/
-config/vs001/
-├── pilot.example.json
-├── context-pack.schema.json
-└── evaluation.schema.json
+src/
+└── Eip.Cli/
+    ├── Eip.Cli.csproj
+    └── Program.cs
+tests/
+└── Eip.Tests/
+    ├── Eip.Tests.csproj
+    └── FoundationTests.cs
 ```
 
-Las extensiones mostradas son ilustrativas hasta seleccionar el runtime en el
-Incremento 0; los nombres de responsabilidad se conservan en la tecnología
-elegida. `review-orchestrator.ts` es el único orquestador. `github.ts` es
-concreto y read-only. `context-builder.ts` implementa sólo la recuperación del
-slice. `analyze.ts` tiene un único cliente de Inference Engine.
+Durante el Incremento 1, comandos, contrato del manifest y adaptador concreto
+del Git Provider se agregan como namespaces y carpetas dentro de `Eip.Cli`. No
+se crean ensamblados `Core`, `Domain`, `Contracts` o `Infrastructure`: VS-001 no
+demuestra todavía una necesidad de dependencia, seguridad, despliegue o testing
+que requiera esas fronteras físicas.
+
+Los tests unitarios, de contrato e integración comienzan en `Eip.Tests` y se
+separan por carpetas. Un nuevo proyecto de tests requiere una diferencia real de
+runtime, dependencias, aislamiento o ejecución. El test de arquitectura de
+dependencias entre ensamblados se posterga mientras exista un solo ensamblado
+productivo.
 
 Artefactos de ejecución van fuera de `src`, en un directorio local ignorado. El
 dataset real del piloto sólo se versiona si fue sanitizado y autorizado; de lo
@@ -810,7 +799,7 @@ siguiente.
 ### Incremento 0 — Contrato de evaluación y seguridad
 
 - seleccionar repositorio/equipo, data owner y Capability Owner;
-- seleccionar runtime con los criterios de TD-01;
+- verificar el SDK y convenciones de .NET 9 definidos por TD-01;
 - clasificar datos y aprobar acceso e Inference Engine;
 - acordar baseline, muestra y umbrales sin valores retroactivos;
 - crear fixtures sanitizados y manifest del dataset.
@@ -923,3 +912,4 @@ ni una ampliación de fuentes o acciones.
 | ---------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
 | 2026-08-03 | Primera propuesta del diseño técnico mínimo                                                                   | Proposed                                     |
 | 2026-08-03 | TDR: Git Provider conceptual, Inference Engine, runtime pendiente, nomenclatura única y decisiones no tomadas | **Accepted with minor changes incorporated** |
+| 2026-08-03 | Incremento 0: .NET 9 seleccionado exclusivamente como runtime del piloto VS-001                               | **Accepted**                                 |

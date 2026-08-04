@@ -9,6 +9,18 @@ permissions:
   contents: read
 
 jobs:
+  dotnet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet restore
+      - run: dotnet build --no-restore --configuration Release
+      - run: dotnet format --verify-no-changes --no-restore
+      - run: dotnet test --no-build --configuration Release
+
   documentation:
     runs-on: ubuntu-latest
     steps:

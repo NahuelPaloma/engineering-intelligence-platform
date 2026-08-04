@@ -1,4 +1,9 @@
 node_modules/
+**/bin/
+**/obj/
+.vs/
+TestResults/
+artifacts/
 .DS_Store
 *.log
 .idea/
