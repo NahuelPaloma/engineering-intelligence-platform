@@ -40,7 +40,11 @@ public sealed class ReviewCommand(
 
         File.Move(temporaryPath, manifestPath, true);
         var readmesPath = await ReadmeLocator.WriteAsync(manifestPath, repositoryRoot, cancellationToken);
-        await ReadmeContentReader.WriteAsync(readmesPath, repositoryRoot, cancellationToken);
+        var readmeContentsPath = await ReadmeContentReader.WriteAsync(
+            readmesPath,
+            repositoryRoot,
+            cancellationToken);
+        await ReadmeMetadataExtractor.WriteAsync(readmeContentsPath, cancellationToken);
         return manifestPath;
     }
 

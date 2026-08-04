@@ -89,6 +89,8 @@ public sealed class ReviewCommandTests
             Assert.True(File.Exists(readmesPath));
             var contentsPath = Path.Combine(Path.GetDirectoryName(manifestPath)!, "readme-contents.json");
             Assert.True(File.Exists(contentsPath));
+            var metadataPath = Path.Combine(Path.GetDirectoryName(manifestPath)!, "readme-metadata.json");
+            Assert.True(File.Exists(metadataPath));
         }
         finally
         {

@@ -51,7 +51,8 @@ The command prints the generated file path:
 output/<pack-id>/
 ├── manifest.json
 ├── readmes.json
-└── readme-contents.json
+├── readme-contents.json
+└── readme-metadata.json
 ```
 
 The pack ID is derived from repository, Pull Request number, base SHA and head
@@ -68,6 +69,10 @@ That discovery step does not read file contents.
 their order and preserves their complete text. An unreadable candidate records a
 generic per-document error without stopping the remaining reads.
 
+`readme-metadata.json` deterministically extracts a name from the first explicit
+H1 and a purpose from the first nearby descriptive paragraph. Missing evidence
+produces `null`; no external source or inference engine is used.
+
 See the [Increment 1 demo](docs/demos/VS-001/increment-01.md) and its
 [example manifest](docs/demos/VS-001/examples/increment-01-manifest.json). The
 next baby step is recorded in the
@@ -76,3 +81,6 @@ next baby step is recorded in the
 Content reading is demonstrated in
 [Increment 2.2](docs/demos/VS-001/increment-02-2.md), with an
 [example readme contents file](docs/demos/VS-001/examples/increment-02-2-readme-contents.json).
+Deterministic metadata extraction is demonstrated in
+[Increment 2.3](docs/demos/VS-001/increment-02-3.md), with an
+[example metadata file](docs/demos/VS-001/examples/increment-02-3-readme-metadata.json).

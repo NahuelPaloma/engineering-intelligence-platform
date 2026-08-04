@@ -1,0 +1,24 @@
+{
+  "documents": [
+    {
+      "path": "src/example/README.md",
+      "name": "Example Service",
+      "purpose": "Provides example processing capabilities.",
+      "status": "extracted",
+      "evidence": [
+        {
+          "field": "name",
+          "text": "Example Service",
+          "source_line_start": 1,
+          "source_line_end": 1
+        },
+        {
+          "field": "purpose",
+          "text": "Provides example processing capabilities.",
+          "source_line_start": 3,
+          "source_line_end": 3
+        }
+      ]
+    }
+  ]
+}
