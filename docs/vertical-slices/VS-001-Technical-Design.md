@@ -6,7 +6,7 @@
 | Tipo                 | Diseño técnico del piloto                 |
 | Vertical slice       | VS-001 — Architecture Review Intelligence |
 | Owner propuesto      | Engineering Platform                      |
-| Última actualización | 3 de agosto de 2026                       |
+| Última actualización | 4 de agosto de 2026                       |
 
 ## 1. Propósito y autoridad
 
@@ -21,14 +21,25 @@ Las fuentes normativas son, en este orden:
    Accepted.
 2. [Architecture v1.0](../architecture/engineering-intelligence-platform-architecture-v1.0.md),
    Accepted.
-3. [VS-001 — Architecture Review Intelligence](./VS-001-Architecture-Review-Intelligence.md),
+3. [ADR-013 — Local Context Contract](../architecture/adr/ADR-013-local-context-contract.md)
+   y el [Local Context Contract](../contracts/local-context-contract.md),
    Accepted.
-4. [Detailed Architecture Reference](../architecture/reference/engineering-intelligence-platform-architecture-v1.0-detailed-reference.md),
+4. [VS-001 — Architecture Review Intelligence](./VS-001-Architecture-Review-Intelligence.md),
+   Accepted.
+5. [Detailed Architecture Reference](../architecture/reference/engineering-intelligence-platform-architecture-v1.0-detailed-reference.md),
    Supporting Reference.
 
 También se observaron los índices de visión, arquitectura y ADR, el README, el
 workflow de contribución, la plantilla de pull request y el workflow de calidad
 existentes. Ante una contradicción prevalecen los documentos Accepted.
+
+**Nota de reconciliación (4 de agosto de 2026):** ADR-013 y el Local Context
+Contract son la definición normativa vigente del contrato entre el Context
+Retrieval Pipeline y el Inference Engine. Reemplazan, en todo lo referido a ese
+límite, el esquema de `manifest.json` de la sección 8 y la descripción de la
+entrada del analizador de la sección 11 de este documento. Esas secciones se
+conservan como registro histórico del diseño original del piloto y no deben
+leerse como la definición vigente de ese contrato.
 
 Este diseño usa un único nombre para la salida completa: **Architecture Review
 Context Pack**. El pack contiene tanto la representación estructurada como su
@@ -234,6 +245,15 @@ registrados como cobertura no analizada.
 
 ## 8. Modelo del Architecture Review Context Pack y trazabilidad
 
+> **Nota de reconciliación (4 de agosto de 2026):** la definición normativa del
+> contrato entre el Context Retrieval Pipeline y el Inference Engine fue
+> reemplazada por
+> [ADR-013](../architecture/adr/ADR-013-local-context-contract.md) y el
+> [Local Context Contract](../contracts/local-context-contract.md). El esquema
+> de `manifest.json` descrito a continuación corresponde al diseño original del
+> piloto; no es la definición vigente de ese contrato ni del artefacto
+> `manifest.json` implementado. Se conserva como registro histórico.
+
 Cada ejecución produce un directorio:
 
 ```text
@@ -393,6 +413,12 @@ verbos de aprobación o cumplimiento aparezcan como veredictos propios.
 clasificación, afirmaciones no sustentadas y falsos veredictos.
 
 ## 11. Generación del Architecture Review Context Pack
+
+> **Nota de reconciliación (4 de agosto de 2026):** la descripción de la entrada
+> del analizador en esta sección corresponde al diseño original del piloto. El
+> contrato vigente de entrada del Inference Engine es `local-context.json`,
+> definido por [ADR-013](../architecture/adr/ADR-013-local-context-contract.md)
+> y el [Local Context Contract](../contracts/local-context-contract.md).
 
 El analizador recibe un objeto estructurado, no archivos libres, compuesto por
 metadatos del cambio, hunks, evidencias etiquetadas y límites de cobertura. Sus
@@ -908,8 +934,9 @@ ni una ampliación de fuentes o acciones.
 
 ## 24. Registro de revisión
 
-| Fecha      | Cambio                                                                                                        | Estado                                       |
-| ---------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| 2026-08-03 | Primera propuesta del diseño técnico mínimo                                                                   | Proposed                                     |
-| 2026-08-03 | TDR: Git Provider conceptual, Inference Engine, runtime pendiente, nomenclatura única y decisiones no tomadas | **Accepted with minor changes incorporated** |
-| 2026-08-03 | Incremento 0: .NET 9 seleccionado exclusivamente como runtime del piloto VS-001                               | **Accepted**                                 |
+| Fecha      | Cambio                                                                                                                                                                            | Estado                                       |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| 2026-08-03 | Primera propuesta del diseño técnico mínimo                                                                                                                                       | Proposed                                     |
+| 2026-08-03 | TDR: Git Provider conceptual, Inference Engine, runtime pendiente, nomenclatura única y decisiones no tomadas                                                                     | **Accepted with minor changes incorporated** |
+| 2026-08-03 | Incremento 0: .NET 9 seleccionado exclusivamente como runtime del piloto VS-001                                                                                                   | **Accepted**                                 |
+| 2026-08-04 | Reconciliación: ADR-013 y el Local Context Contract reemplazan la definición normativa del contrato Context↔Inference de las secciones 8 y 11, que quedan como registro histórico | **Accepted**                                 |

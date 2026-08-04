@@ -5,14 +5,14 @@ transforms engineering knowledge into actionable intelligence.
 
 ## Current Status
 
-🚧 Early Design Phase
+VS-001 Context Retrieval Pipeline completed. The next block of work is the
+Inference Engine.
 
 ## Documentation
 
 - [Product Vision](docs/vision/)
 - [Architecture](docs/architecture/)
-
-Implementation has not started.
+- [Local Context Contract](docs/contracts/local-context-contract.md)
 
 ## Development
 
@@ -80,9 +80,12 @@ relations from `readmes.json`. It applies fixed location scores and orders ties
 by ordinal path without reading repository files or README content.
 
 `local-context.json` consolidates the five preceding artifacts into one
-deterministic input for a future Inference Engine. It preserves ranking order,
-content, metadata, status and evidence without rereading or interpreting the
-repository. Inconsistent inputs fail without producing partial context.
+deterministic input for the future Inference Engine. It is the official contract
+between Context Retrieval and inference, as established by
+[ADR-013](docs/architecture/adr/ADR-013-local-context-contract.md). It preserves
+ranking order, content, metadata, status and evidence without rereading or
+interpreting the repository. Inconsistent inputs fail without producing partial
+context.
 
 See the [Increment 1 demo](docs/demos/VS-001/increment-01.md) and its
 [example manifest](docs/demos/VS-001/examples/increment-01-manifest.json). The

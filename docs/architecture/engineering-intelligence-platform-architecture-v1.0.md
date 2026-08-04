@@ -514,6 +514,7 @@ mediante un ADR que demuestre una necesidad arquitectónica.
 | ADR-010 | Eventos sólo cuando el desacoplamiento lo justifique          | Dos estilos de interacción                     |
 | ADR-011 | Evolución mediante vertical slices                            | Menos infraestructura anticipada               |
 | ADR-012 | Capability lifecycle y DoD por outcome                        | Mayor disciplina de producto                   |
+| ADR-013 | `local-context.json` como contrato de Context a Inference     | Evolución gobernada del contrato               |
 
 ---
 
