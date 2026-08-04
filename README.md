@@ -53,7 +53,8 @@ output/<pack-id>/
 ├── readmes.json
 ├── readme-contents.json
 ├── readme-metadata.json
-└── readme-ranking.json
+├── readme-ranking.json
+└── local-context.json
 ```
 
 The pack ID is derived from repository, Pull Request number, base SHA and head
@@ -78,6 +79,11 @@ produces `null`; no external source or inference engine is used.
 relations from `readmes.json`. It applies fixed location scores and orders ties
 by ordinal path without reading repository files or README content.
 
+`local-context.json` consolidates the five preceding artifacts into one
+deterministic input for a future Inference Engine. It preserves ranking order,
+content, metadata, status and evidence without rereading or interpreting the
+repository. Inconsistent inputs fail without producing partial context.
+
 See the [Increment 1 demo](docs/demos/VS-001/increment-01.md) and its
 [example manifest](docs/demos/VS-001/examples/increment-01-manifest.json). The
 next baby step is recorded in the
@@ -92,3 +98,6 @@ Deterministic metadata extraction is demonstrated in
 Deterministic location ranking is demonstrated in
 [Increment 2.4](docs/demos/VS-001/increment-02-4.md), with an
 [example ranking file](docs/demos/VS-001/examples/increment-02-4-readme-ranking.json).
+The completed retrieval pipeline is demonstrated in
+[Increment 3.0](docs/demos/VS-001/increment-03-0.md), with an
+[example local context](docs/demos/VS-001/examples/increment-03-0-local-context.json).

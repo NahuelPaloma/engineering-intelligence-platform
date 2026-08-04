@@ -47,7 +47,17 @@ public sealed class ReviewCommand(
         var metadataPath = await ReadmeMetadataExtractor.WriteAsync(
             readmeContentsPath,
             cancellationToken);
-        await ReadmeRankingGenerator.WriteAsync(metadataPath, readmesPath, cancellationToken);
+        var rankingPath = await ReadmeRankingGenerator.WriteAsync(
+            metadataPath,
+            readmesPath,
+            cancellationToken);
+        await LocalContextBuilder.WriteAsync(
+            manifestPath,
+            readmesPath,
+            readmeContentsPath,
+            metadataPath,
+            rankingPath,
+            cancellationToken);
         return manifestPath;
     }
 

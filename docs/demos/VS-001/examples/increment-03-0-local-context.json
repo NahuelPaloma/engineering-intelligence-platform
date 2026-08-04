@@ -1,0 +1,47 @@
+{
+  "repository": "example/widgets",
+  "pull_request": 123,
+  "pack_id": "f166a136da542904223312b67fbb42ba5d1436fd29a399f7956d02ef50525bdd",
+  "documents": [
+    {
+      "path": "src/payments/README.md",
+      "score": 100,
+      "reason": "same_directory",
+      "name": "Payments",
+      "purpose": "Provides payment processing capabilities.",
+      "content": "# Payments\n\nProvides payment processing capabilities.\n",
+      "status": "extracted",
+      "evidence": [
+        {
+          "field": "name",
+          "text": "Payments",
+          "source_line_start": 1,
+          "source_line_end": 1
+        },
+        {
+          "field": "purpose",
+          "text": "Provides payment processing capabilities.",
+          "source_line_start": 3,
+          "source_line_end": 3
+        }
+      ]
+    },
+    {
+      "path": "README.md",
+      "score": 10,
+      "reason": "repository_root",
+      "name": "Example Repository",
+      "purpose": null,
+      "content": "# Example Repository\n",
+      "status": "missing_purpose",
+      "evidence": [
+        {
+          "field": "name",
+          "text": "Example Repository",
+          "source_line_start": 1,
+          "source_line_end": 1
+        }
+      ]
+    }
+  ]
+}

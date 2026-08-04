@@ -93,6 +93,8 @@ public sealed class ReviewCommandTests
             Assert.True(File.Exists(metadataPath));
             var rankingPath = Path.Combine(Path.GetDirectoryName(manifestPath)!, "readme-ranking.json");
             Assert.True(File.Exists(rankingPath));
+            var localContextPath = Path.Combine(Path.GetDirectoryName(manifestPath)!, "local-context.json");
+            Assert.True(File.Exists(localContextPath));
         }
         finally
         {
