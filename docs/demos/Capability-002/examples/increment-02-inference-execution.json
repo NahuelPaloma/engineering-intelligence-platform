@@ -1,0 +1,145 @@
+{
+  "execution_id": "74db47e4af789d056f1f4b318638313df357ab48c654dc6b4b87d33fff01be68",
+  "input_pack_id": "f166a136da542904223312b67fbb42ba5d1436fd29a399f7956d02ef50525bdd",
+  "rule_set_id": "capability-002-document-context-rules-v1",
+  "status": "hypotheses_produced",
+  "stages": [
+    {
+      "name": "input_boundary",
+      "status": "completed"
+    },
+    {
+      "name": "claim_processing",
+      "status": "completed"
+    },
+    {
+      "name": "hypothesis_processing",
+      "status": "completed"
+    },
+    {
+      "name": "finding_processing",
+      "status": "not_implemented"
+    },
+    {
+      "name": "report_builder",
+      "status": "not_implemented"
+    }
+  ],
+  "counts": {
+    "evidence": 1,
+    "claims": 1,
+    "hypotheses": 1,
+    "findings": 0,
+    "abstentions": 0,
+    "discarded_candidates": 1,
+    "discarded_hypotheses": 0
+  },
+  "evidence": [
+    {
+      "evidence_id": "06a2788f3688df0fac10445d6f177c5da7af13cfdb93105bbd41e1e6929d4293",
+      "input_pack_id": "f166a136da542904223312b67fbb42ba5d1436fd29a399f7956d02ef50525bdd",
+      "document_path": "docs/payments/README.md",
+      "scope": {
+        "type": "document",
+        "document_path": "docs/payments/README.md"
+      },
+      "provenance": {
+        "contract": "local-context-v1",
+        "document_path": "docs/payments/README.md"
+      },
+      "availability_status": "available"
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "98186bb7035e8c22d3c030e0646a4d44ddee63ab51283bc3043eaa42311a90d1",
+      "statement": "A context document is available at 'docs/payments/README.md'.",
+      "evidence_ids": [
+        "06a2788f3688df0fac10445d6f177c5da7af13cfdb93105bbd41e1e6929d4293"
+      ],
+      "rule_id": "document-availability-claim",
+      "rule_version": 1,
+      "scope": {
+        "type": "document",
+        "document_path": "docs/payments/README.md"
+      },
+      "confidence": {
+        "level": "strong",
+        "basis": [
+          "document_explicitly_present",
+          "admitted_by_input_boundary",
+          "rule_describes_availability_only"
+        ],
+        "limitations": [
+          "content_not_evaluated",
+          "authority_not_evaluated",
+          "freshness_not_evaluated",
+          "semantic_relevance_not_evaluated"
+        ],
+        "dimensions": {
+          "directness": "strong",
+          "coverage": "strong",
+          "consistency": "strong",
+          "traceability": "strong",
+          "rule_constraints": "strong"
+        }
+      },
+      "uncertainty": [],
+      "status": "valid"
+    }
+  ],
+  "discarded_candidates": [
+    {
+      "candidate_type": "document_availability_claim",
+      "document_path": "docs/legacy/README.md",
+      "rule_id": "document-availability-claim",
+      "rule_version": 1,
+      "status": "discarded",
+      "reason": "document_not_readable"
+    }
+  ],
+  "hypotheses": [
+    {
+      "hypothesis_id": "9b9599a56fb0c5b2eeeca614ff7d2b95bfab5b635bdf9a806891759f95bd6ef4",
+      "statement": "The available document at 'docs/payments/README.md' may provide context for this execution.",
+      "claim_ids": [
+        "98186bb7035e8c22d3c030e0646a4d44ddee63ab51283bc3043eaa42311a90d1"
+      ],
+      "rule_id": "available-document-context-hypothesis",
+      "rule_version": 1,
+      "scope": {
+        "type": "document",
+        "document_path": "docs/payments/README.md"
+      },
+      "confidence": {
+        "level": "moderate",
+        "basis": [
+          "available_document_is_traceable_within_scope",
+          "relevance_or_effective_use_not_demonstrated"
+        ],
+        "limitations": [
+          "contextual_use_not_verified",
+          "content_not_evaluated",
+          "authority_not_evaluated",
+          "freshness_not_evaluated",
+          "semantic_relevance_not_evaluated"
+        ],
+        "dimensions": {
+          "directness": "moderate",
+          "coverage": "weak",
+          "consistency": "moderate",
+          "traceability": "strong",
+          "rule_constraints": "strong"
+        }
+      },
+      "uncertainty": [
+        "useful_context_contribution_not_verified",
+        "content_authority_freshness_and_relevance_not_evaluated"
+      ],
+      "verification_condition": "Additional governed evidence could demonstrate that the document is used as context by a consumer.",
+      "falsification_condition": "Additional governed evidence could demonstrate that the document does not apply to the execution scope or provide usable context.",
+      "status": "valid"
+    }
+  ],
+  "discarded_hypotheses": []
+}

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -9,7 +10,7 @@ public sealed class InferencePipelineTests
     [
         "input_boundary:completed",
         "claim_processing:completed",
-        "hypothesis_processing:not_implemented",
+        "hypothesis_processing:completed",
         "finding_processing:not_implemented",
         "report_builder:not_implemented"
     ];
@@ -39,21 +40,22 @@ public sealed class InferencePipelineTests
 
             using var document = JsonDocument.Parse(await File.ReadAllBytesAsync(outputPath));
             var execution = document.RootElement;
-            Assert.Equal(NewRuleSetExecutionId, execution.GetProperty("execution_id").GetString());
+            Assert.Equal(HypothesisRuleSetExecutionId, execution.GetProperty("execution_id").GetString());
             Assert.Equal(PackId, execution.GetProperty("input_pack_id").GetString());
             Assert.Equal(
-                "capability-002-document-availability-rules-v1",
+                "capability-002-document-context-rules-v1",
                 execution.GetProperty("rule_set_id").GetString());
-            Assert.Equal("claims_produced", execution.GetProperty("status").GetString());
+            Assert.Equal("hypotheses_produced", execution.GetProperty("status").GetString());
             Assert.Equal(ExpectedStages, ReadStages(execution));
 
             var counts = execution.GetProperty("counts");
             Assert.Equal(1, counts.GetProperty("evidence").GetInt32());
             Assert.Equal(1, counts.GetProperty("claims").GetInt32());
-            Assert.Equal(0, counts.GetProperty("hypotheses").GetInt32());
+            Assert.Equal(1, counts.GetProperty("hypotheses").GetInt32());
             Assert.Equal(0, counts.GetProperty("findings").GetInt32());
             Assert.Equal(0, counts.GetProperty("abstentions").GetInt32());
             Assert.Equal(0, counts.GetProperty("discarded_candidates").GetInt32());
+            Assert.Equal(0, counts.GetProperty("discarded_hypotheses").GetInt32());
 
             var evidence = Assert.Single(execution.GetProperty("evidence").EnumerateArray());
             var claim = Assert.Single(execution.GetProperty("claims").EnumerateArray());
@@ -101,7 +103,31 @@ public sealed class InferencePipelineTests
                 dimensions.EnumerateObject().Select(dimension => dimension.Name).ToArray());
             Assert.Empty(claim.GetProperty("uncertainty").EnumerateArray());
             Assert.Empty(execution.GetProperty("discarded_candidates").EnumerateArray());
-            Assert.False(execution.TryGetProperty("hypotheses", out _));
+            var hypothesis = Assert.Single(execution.GetProperty("hypotheses").EnumerateArray());
+            Assert.Equal(
+                "The available document at 'docs/component/README.md' may provide context for this execution.",
+                hypothesis.GetProperty("statement").GetString());
+            Assert.Equal(
+                claim.GetProperty("claim_id").GetString(),
+                Assert.Single(hypothesis.GetProperty("claim_ids").EnumerateArray()).GetString());
+            Assert.Equal("available-document-context-hypothesis", hypothesis.GetProperty("rule_id").GetString());
+            Assert.Equal(1, hypothesis.GetProperty("rule_version").GetInt32());
+            Assert.Equal(claim.GetProperty("scope").GetRawText(), hypothesis.GetProperty("scope").GetRawText());
+            Assert.Equal("moderate", hypothesis.GetProperty("confidence").GetProperty("level").GetString());
+            Assert.Equal(
+                [
+                    "useful_context_contribution_not_verified",
+                    "content_authority_freshness_and_relevance_not_evaluated"
+                ],
+                ReadStrings(hypothesis.GetProperty("uncertainty")));
+            Assert.Equal(
+                Cli.Inference.HypothesisProcessing.VerificationCondition,
+                hypothesis.GetProperty("verification_condition").GetString());
+            Assert.Equal(
+                Cli.Inference.HypothesisProcessing.FalsificationCondition,
+                hypothesis.GetProperty("falsification_condition").GetString());
+            Assert.Equal("valid", hypothesis.GetProperty("status").GetString());
+            Assert.Empty(execution.GetProperty("discarded_hypotheses").EnumerateArray());
             Assert.False(execution.TryGetProperty("findings", out _));
             Assert.DoesNotContain("content that must not be interpreted", await File.ReadAllTextAsync(outputPath));
         }
@@ -130,10 +156,12 @@ public sealed class InferencePipelineTests
             var execution = document.RootElement;
             var evidence = execution.GetProperty("evidence").EnumerateArray().ToArray();
             var claims = execution.GetProperty("claims").EnumerateArray().ToArray();
+            var hypotheses = execution.GetProperty("hypotheses").EnumerateArray().ToArray();
 
             Assert.Equal(["alpha/README.md", "zeta/README.md"],
                 evidence.Select(item => item.GetProperty("document_path").GetString()!).ToArray());
             Assert.Equal(2, claims.Length);
+            Assert.Equal(2, hypotheses.Length);
             Assert.NotEqual(claims[0].GetProperty("claim_id").GetString(), claims[1].GetProperty("claim_id").GetString());
             Assert.Equal(
                 evidence[0].GetProperty("evidence_id").GetString(),
@@ -141,6 +169,14 @@ public sealed class InferencePipelineTests
             Assert.Equal(
                 evidence[1].GetProperty("evidence_id").GetString(),
                 claims[1].GetProperty("evidence_ids")[0].GetString());
+            Assert.Equal(
+                claims[0].GetProperty("claim_id").GetString(),
+                hypotheses[0].GetProperty("claim_ids")[0].GetString());
+            Assert.Equal(
+                claims[1].GetProperty("claim_id").GetString(),
+                hypotheses[1].GetProperty("claim_ids")[0].GetString());
+            Assert.Equal(claims[0].GetProperty("scope").GetRawText(), hypotheses[0].GetProperty("scope").GetRawText());
+            Assert.Equal(claims[1].GetProperty("scope").GetRawText(), hypotheses[1].GetProperty("scope").GetRawText());
         }
         finally
         {
@@ -166,9 +202,10 @@ public sealed class InferencePipelineTests
             using var document = JsonDocument.Parse(await File.ReadAllBytesAsync(outputPath));
             var execution = document.RootElement;
 
-            Assert.Equal("claims_produced", execution.GetProperty("status").GetString());
+            Assert.Equal("hypotheses_produced", execution.GetProperty("status").GetString());
             Assert.Single(execution.GetProperty("evidence").EnumerateArray());
             Assert.Single(execution.GetProperty("claims").EnumerateArray());
+            Assert.Single(execution.GetProperty("hypotheses").EnumerateArray());
             var discard = Assert.Single(execution.GetProperty("discarded_candidates").EnumerateArray());
             Assert.Equal("broken/README.md", discard.GetProperty("document_path").GetString());
             Assert.Equal("document_not_readable", discard.GetProperty("reason").GetString());
@@ -202,6 +239,8 @@ public sealed class InferencePipelineTests
             Assert.Equal("no_claims", execution.GetProperty("status").GetString());
             Assert.Empty(execution.GetProperty("evidence").EnumerateArray());
             Assert.Empty(execution.GetProperty("claims").EnumerateArray());
+            Assert.Empty(execution.GetProperty("hypotheses").EnumerateArray());
+            Assert.Empty(execution.GetProperty("discarded_hypotheses").EnumerateArray());
             Assert.Single(execution.GetProperty("discarded_candidates").EnumerateArray());
             Assert.Equal(0, execution.GetProperty("counts").GetProperty("abstentions").GetInt32());
         }
@@ -228,6 +267,8 @@ public sealed class InferencePipelineTests
                 .GetProperty("evidence_id").GetString();
             var firstClaimId = firstDocument.RootElement.GetProperty("claims")[0]
                 .GetProperty("claim_id").GetString();
+            var firstHypothesisId = firstDocument.RootElement.GetProperty("hypotheses")[0]
+                .GetProperty("hypothesis_id").GetString();
 
             await Cli.Inference.InferencePipeline.ExecuteAsync(localContextPath, CancellationToken.None);
             var second = await File.ReadAllBytesAsync(outputPath);
@@ -238,7 +279,9 @@ public sealed class InferencePipelineTests
                 .GetProperty("evidence_id").GetString());
             Assert.Equal(firstClaimId, secondDocument.RootElement.GetProperty("claims")[0]
                 .GetProperty("claim_id").GetString());
-            Assert.NotEqual(EmptyRuleSetExecutionId, NewRuleSetExecutionId);
+            Assert.Equal(firstHypothesisId, secondDocument.RootElement.GetProperty("hypotheses")[0]
+                .GetProperty("hypothesis_id").GetString());
+            Assert.NotEqual(ClaimRuleSetExecutionId, HypothesisRuleSetExecutionId);
         }
         finally
         {
@@ -421,9 +464,98 @@ public sealed class InferencePipelineTests
         }
     }
 
+    [Fact]
+    public void DiscardsHypothesisForClaimFromDifferentRule()
+    {
+        var scope = new Cli.Inference.DocumentScope("document", "README.md");
+        var evidence = CreateEvidence("evidence-id", scope);
+        var claim = CreateClaim("claim-id", "different-rule", "evidence-id", scope);
+        var evidenceById = new Dictionary<string, Cli.Inference.EvidenceUnit>(StringComparer.Ordinal)
+        {
+            [evidence.EvidenceId] = evidence
+        };
+        var applicability = Cli.Inference.AvailableDocumentContextRule.Evaluate(claim, evidenceById);
+        var candidate = Cli.Inference.HypothesisProcessing.CreateCandidate(claim, applicability);
+        var decision = Cli.Inference.HypothesisValidation.Decide(candidate, claim, evidenceById);
+
+        Assert.Equal("discarded", decision.Status);
+        Assert.Equal("claim_not_eligible", decision.Discard!.Reason);
+        Assert.Null(decision.Hypothesis);
+    }
+
+    [Fact]
+    public void DiscardsHypothesisWhenClaimTraceabilityIsBroken()
+    {
+        var scope = new Cli.Inference.DocumentScope("document", "README.md");
+        var claim = CreateClaim(
+            "claim-id",
+            Cli.Inference.DocumentAvailabilityRule.RuleId,
+            "missing-evidence-id",
+            scope);
+        var evidenceById = new Dictionary<string, Cli.Inference.EvidenceUnit>(StringComparer.Ordinal);
+        var applicability = Cli.Inference.AvailableDocumentContextRule.Evaluate(claim, evidenceById);
+        var candidate = Cli.Inference.HypothesisProcessing.CreateCandidate(claim, applicability);
+        var decision = Cli.Inference.HypothesisValidation.Decide(candidate, claim, evidenceById);
+
+        Assert.Equal("discarded", decision.Status);
+        Assert.Equal("claim_traceability_invalid", decision.Discard!.Reason);
+        Assert.Null(decision.Hypothesis);
+    }
+
+    [Fact]
+    public void DiscardsHypothesisWhenClaimScopeIsInconsistentWithEvidence()
+    {
+        var claimScope = new Cli.Inference.DocumentScope("document", "README.md");
+        var evidenceScope = new Cli.Inference.DocumentScope("document", "other/README.md");
+        var evidence = CreateEvidence("evidence-id", evidenceScope);
+        var claim = CreateClaim(
+            "claim-id",
+            Cli.Inference.DocumentAvailabilityRule.RuleId,
+            evidence.EvidenceId,
+            claimScope);
+        var evidenceById = new Dictionary<string, Cli.Inference.EvidenceUnit>(StringComparer.Ordinal)
+        {
+            [evidence.EvidenceId] = evidence
+        };
+        var applicability = Cli.Inference.AvailableDocumentContextRule.Evaluate(claim, evidenceById);
+        var candidate = Cli.Inference.HypothesisProcessing.CreateCandidate(claim, applicability);
+        var decision = Cli.Inference.HypothesisValidation.Decide(candidate, claim, evidenceById);
+
+        Assert.Equal("discarded", decision.Status);
+        Assert.Equal("claim_scope_inconsistent", decision.Discard!.Reason);
+        Assert.Null(decision.Hypothesis);
+    }
+
     private const string PackId = "f166a136da542904223312b67fbb42ba5d1436fd29a399f7956d02ef50525bdd";
-    private const string EmptyRuleSetExecutionId = "af2f3c5874d3b95005d707f78e2c35188ea41c3a41ae4275a632f225fce8e149";
-    private const string NewRuleSetExecutionId = "1969c9398663134ffa16150a95895cfdde875fa3a49bb9586241a07c9bf95d72";
+    private const string ClaimRuleSetExecutionId = "1969c9398663134ffa16150a95895cfdde875fa3a49bb9586241a07c9bf95d72";
+    private const string HypothesisRuleSetExecutionId = "74db47e4af789d056f1f4b318638313df357ab48c654dc6b4b87d33fff01be68";
+
+    private static Cli.Inference.EvidenceUnit CreateEvidence(
+        string evidenceId,
+        Cli.Inference.DocumentScope scope) =>
+        new(
+            evidenceId,
+            PackId,
+            scope.DocumentPath,
+            scope,
+            new Cli.Inference.EvidenceProvenance("local-context-v1", scope.DocumentPath),
+            "available");
+
+    private static Cli.Inference.ClaimUnit CreateClaim(
+        string claimId,
+        string ruleId,
+        string evidenceId,
+        Cli.Inference.DocumentScope scope) =>
+        new(
+            claimId,
+            $"A context document is available at '{scope.DocumentPath}'.",
+            ImmutableArray.Create(evidenceId),
+            ruleId,
+            1,
+            scope,
+            Cli.Inference.ClaimSupport.MinimumConfidence,
+            ImmutableArray<string>.Empty,
+            "valid");
 
     private static string[] ReadStages(JsonElement execution) =>
         execution.GetProperty("stages")
