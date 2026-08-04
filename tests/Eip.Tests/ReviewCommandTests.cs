@@ -87,6 +87,8 @@ public sealed class ReviewCommandTests
             Assert.Single(root.GetProperty("changed_files").EnumerateArray());
             var readmesPath = Path.Combine(Path.GetDirectoryName(manifestPath)!, "readmes.json");
             Assert.True(File.Exists(readmesPath));
+            var contentsPath = Path.Combine(Path.GetDirectoryName(manifestPath)!, "readme-contents.json");
+            Assert.True(File.Exists(contentsPath));
         }
         finally
         {

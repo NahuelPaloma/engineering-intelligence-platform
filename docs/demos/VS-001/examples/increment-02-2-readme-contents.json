@@ -1,0 +1,12 @@
+{
+  "documents": [
+    {
+      "path": "src/payments/README.md",
+      "content": "# Payments\n\nPayment component documentation.\n"
+    },
+    {
+      "path": "README.md",
+      "content": "# Example Repository\n\nRepository documentation.\n"
+    }
+  ]
+}

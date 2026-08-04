@@ -50,7 +50,8 @@ The command prints the generated file path:
 ```text
 output/<pack-id>/
 ├── manifest.json
-└── readmes.json
+├── readmes.json
+└── readme-contents.json
 ```
 
 The pack ID is derived from repository, Pull Request number, base SHA and head
@@ -61,10 +62,17 @@ does not build context or produce analysis.
 Run the command from the corresponding repository checkout. `readmes.json`
 contains only candidate paths for `README.md`, `Readme.md` or `readme.md` found
 in changed-file directories, their nearest ancestors and the repository root.
-README contents are not read.
+That discovery step does not read file contents.
+
+`readme-contents.json` reads only the candidates listed in `readmes.json`, keeps
+their order and preserves their complete text. An unreadable candidate records a
+generic per-document error without stopping the remaining reads.
 
 See the [Increment 1 demo](docs/demos/VS-001/increment-01.md) and its
 [example manifest](docs/demos/VS-001/examples/increment-01-manifest.json). The
 next baby step is recorded in the
 [Increment 2.1 demo](docs/demos/VS-001/increment-02-1.md), with an
 [example readmes file](docs/demos/VS-001/examples/increment-02-1-readmes.json).
+Content reading is demonstrated in
+[Increment 2.2](docs/demos/VS-001/increment-02-2.md), with an
+[example readme contents file](docs/demos/VS-001/examples/increment-02-2-readme-contents.json).
