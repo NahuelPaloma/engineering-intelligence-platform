@@ -4,7 +4,7 @@
 | -------------------- | ---------------------------------------- |
 | Documento            | Inference Engine Reasoning Specification |
 | Capability           | Capability-002 — Inference Engine        |
-| Estado               | **Proposed**                             |
+| Estado               | **Accepted**                             |
 | Tipo                 | Especificación normativa de razonamiento |
 | Owner propuesto      | Engineering Platform                     |
 | Última actualización | 4 de agosto de 2026                      |
@@ -1167,7 +1167,7 @@ vigencia.
 
 ## 25. Criterio de aceptación
 
-Esta especificación puede promoverse a **Accepted** cuando:
+La aceptación formal de esta especificación se sustenta en que:
 
 - Capability Owner y Architecture Owner aceptan sus leyes;
 - todas las preguntas normativas poseen respuesta no ambigua;
@@ -1186,3 +1186,4 @@ Esta especificación puede promoverse a **Accepted** cuando:
 | Fecha      | Cambio                                                 | Estado   |
 | ---------- | ------------------------------------------------------ | -------- |
 | 2026-08-04 | Propuesta inicial de la especificación de razonamiento | Proposed |
+| 2026-08-04 | Promoción formal de la especificación                  | Accepted |

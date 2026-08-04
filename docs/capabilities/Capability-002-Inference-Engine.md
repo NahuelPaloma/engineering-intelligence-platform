@@ -4,7 +4,7 @@
 | -------------------- | ----------------------------------------- |
 | Identificador        | Capability-002                            |
 | Nombre               | Inference Engine                          |
-| Estado               | **Proposed**                              |
+| Estado               | **Accepted**                              |
 | Tipo                 | Capability transversal de razonamiento    |
 | Owner propuesto      | Engineering Platform                      |
 | Audiencia            | Product, Architecture, Engineering y Risk |
@@ -900,6 +900,10 @@ Rules iniciales y un conjunto de evaluación. El paso a **Limited** requiere
 umbrales previos, controles de datos y evidencia de degradación segura. El paso
 a **Accepted** requiere demostrar el outcome y cumplir la Definition of Done.
 
+Capability-002 se encuentra formalmente en estado **Accepted**. Esta promoción
+documental no afirma que todos sus incrementos técnicos estén construidos; fija
+como canónicos su propósito, límites y modelo de dominio.
+
 Requieren revisión arquitectónica explícita:
 
 - agregar una entrada distinta de `local-context.json`;
@@ -968,14 +972,14 @@ capability y no autoriza infraestructura compartida por anticipado.
 - ¿Qué evidencia de variabilidad justificaría incorporar Inference Strategy al
   lenguaje de EIP?
 
-Estas preguntas deben resolverse incrementalmente. No bloquean el estado
-Proposed y no autorizan implementación.
+Estas preguntas deben resolverse incrementalmente. No invalidan el estado
+Accepted y no autorizan trabajo adicional por sí mismas.
 
 ## 24. Criterio de aceptación y evolución
 
-El estado **Proposed** significa que este documento define una hipótesis formal
-de capability pendiente de evaluación y aceptación. No significa que exista una
-implementación ni que el razonamiento haya demostrado calidad.
+El estado **Accepted** establece este documento como definición canónica de la
+capability. No significa que su construcción haya finalizado ni que el
+razonamiento haya demostrado calidad operativa.
 
 La evolución debe mantener cuatro fronteras:
 
@@ -992,19 +996,19 @@ producto consumidora.
 
 | ID         | Decisión                                                     | Estado   |
 | ---------- | ------------------------------------------------------------ | -------- |
-| CAP002-D01 | `local-context.json` es la única entrada oficial             | Proposed |
-| CAP002-D02 | `inference-report` es la única salida conceptual             | Proposed |
-| CAP002-D03 | Evidence, Claim, Hypothesis y Finding son unidades distintas | Proposed |
-| CAP002-D04 | Toda inferencia conserva trazabilidad completa               | Proposed |
-| CAP002-D05 | Confidence es cualitativa y fundamentada, no certeza         | Proposed |
-| CAP002-D06 | Uncertainty es obligatoria cuando limita el razonamiento     | Proposed |
-| CAP002-D07 | Rules son declarativas, versionadas y nunca Evidence         | Proposed |
-| CAP002-D08 | El motor es agnóstico del dominio y de las fuentes           | Proposed |
-| CAP002-D09 | La decisión permanece humana y fuera de la capability        | Proposed |
-| CAP002-D10 | El contrato estructural de salida queda postergado           | Proposed |
-| CAP002-D11 | El motor consume Rules gobernadas externamente               | Proposed |
-| CAP002-D12 | Findings y Recommendations permanecen separados              | Proposed |
-| CAP002-D13 | Evaluation ocurre fuera del pipeline productor               | Proposed |
+| CAP002-D01 | `local-context.json` es la única entrada oficial             | Accepted |
+| CAP002-D02 | `inference-report` es la única salida conceptual             | Accepted |
+| CAP002-D03 | Evidence, Claim, Hypothesis y Finding son unidades distintas | Accepted |
+| CAP002-D04 | Toda inferencia conserva trazabilidad completa               | Accepted |
+| CAP002-D05 | Confidence es cualitativa y fundamentada, no certeza         | Accepted |
+| CAP002-D06 | Uncertainty es obligatoria cuando limita el razonamiento     | Accepted |
+| CAP002-D07 | Rules son declarativas, versionadas y nunca Evidence         | Accepted |
+| CAP002-D08 | El motor es agnóstico del dominio y de las fuentes           | Accepted |
+| CAP002-D09 | La decisión permanece humana y fuera de la capability        | Accepted |
+| CAP002-D10 | El contrato estructural de salida queda postergado           | Accepted |
+| CAP002-D11 | El motor consume Rules gobernadas externamente               | Accepted |
+| CAP002-D12 | Findings y Recommendations permanecen separados              | Accepted |
+| CAP002-D13 | Evaluation ocurre fuera del pipeline productor               | Accepted |
 
 ## 26. Historial del documento
 
@@ -1012,3 +1016,4 @@ producto consumidora.
 | ---------- | ------------------------------------------------------ | -------- |
 | 2026-08-04 | Propuesta inicial de Capability-002 — Inference Engine | Proposed |
 | 2026-08-04 | Revisión profunda del modelo de dominio                | Proposed |
+| 2026-08-04 | Promoción formal de la capability                      | Accepted |

@@ -4,7 +4,7 @@
 | -------------------- | --------------------------------- |
 | Contrato             | `inference-report`                |
 | Versión conceptual   | 1                                 |
-| Estado               | **Proposed**                      |
+| Estado               | **Accepted**                      |
 | Productor            | Capability-002 — Inference Engine |
 | Audiencia            | Capabilities consumidoras         |
 | Última actualización | 4 de agosto de 2026               |
@@ -537,19 +537,10 @@ Son incompatibles, entre otros:
 
 ## 23. Versionado
 
-La versión conceptual actual es **1 Proposed**. Identifica el significado de
+La versión conceptual actual es **1 Accepted**. Identifica el significado de
 este documento, no un campo, formato o mecanismo de serialización.
 
-Mientras el contrato permanezca Proposed, puede refinarse antes de establecer
-una versión estable. Su promoción requiere:
-
-- revisión de Capability-002;
-- validación con al menos una capability consumidora;
-- definición de criterios de conformidad evaluables;
-- resolución de ambigüedades materiales;
-- aceptación arquitectónica correspondiente.
-
-Una versión Accepted mantiene compatibilidad durante su lifecycle. Una versión
+La versión Accepted mantiene compatibilidad durante su lifecycle. Una versión
 posterior incompatible debe coexistir durante una transición explícita o incluir
 una estrategia de migración para productores y consumidores.
 
@@ -624,7 +615,7 @@ anticiparse desde el contrato conceptual.
 
 ## 27. Criterio de aceptación
 
-El contrato puede promoverse a **Accepted** cuando:
+La aceptación formal del contrato se sustenta en que:
 
 - Capability-002 y al menos un consumidor acuerdan sus términos;
 - completo, incompleto e inválido pueden distinguirse sin ambigüedad;
@@ -644,3 +635,4 @@ Una implementación o un ejemplo convincente no bastan para aceptar el contrato.
 | Fecha      | Cambio                                            | Estado   |
 | ---------- | ------------------------------------------------- | -------- |
 | 2026-08-04 | Propuesta inicial de Inference Report Contract v1 | Proposed |
+| 2026-08-04 | Promoción formal de la versión conceptual 1       | Accepted |
