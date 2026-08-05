@@ -55,12 +55,16 @@ public sealed class ReviewCommandTests
 
         try
         {
-            var manifestPath = await command.ExecuteAsync(
+            var contextPackPath = await command.ExecuteAsync(
                 "https://github.com/example/widgets/pull/123",
                 outputRoot,
                 outputRoot,
                 CancellationToken.None);
 
+            Assert.True(File.Exists(contextPackPath));
+            Assert.Equal("context-pack.md", Path.GetFileName(contextPackPath));
+            var directory = Path.GetDirectoryName(contextPackPath)!;
+            var manifestPath = Path.Combine(directory, "manifest.json");
             Assert.True(File.Exists(manifestPath));
             using var document = JsonDocument.Parse(await File.ReadAllTextAsync(manifestPath));
             var root = document.RootElement;
@@ -85,20 +89,26 @@ public sealed class ReviewCommandTests
             Assert.Equal("head-sha", root.GetProperty("head_sha").GetString());
             Assert.Single(root.GetProperty("commits").EnumerateArray());
             Assert.Single(root.GetProperty("changed_files").EnumerateArray());
-            var readmesPath = Path.Combine(Path.GetDirectoryName(manifestPath)!, "readmes.json");
+            var readmesPath = Path.Combine(directory, "readmes.json");
             Assert.True(File.Exists(readmesPath));
-            var contentsPath = Path.Combine(Path.GetDirectoryName(manifestPath)!, "readme-contents.json");
+            var contentsPath = Path.Combine(directory, "readme-contents.json");
             Assert.True(File.Exists(contentsPath));
-            var metadataPath = Path.Combine(Path.GetDirectoryName(manifestPath)!, "readme-metadata.json");
+            var metadataPath = Path.Combine(directory, "readme-metadata.json");
             Assert.True(File.Exists(metadataPath));
-            var rankingPath = Path.Combine(Path.GetDirectoryName(manifestPath)!, "readme-ranking.json");
+            var rankingPath = Path.Combine(directory, "readme-ranking.json");
             Assert.True(File.Exists(rankingPath));
-            var localContextPath = Path.Combine(Path.GetDirectoryName(manifestPath)!, "local-context.json");
+            var localContextPath = Path.Combine(directory, "local-context.json");
             Assert.True(File.Exists(localContextPath));
             var inferenceExecutionPath = Path.Combine(
-                Path.GetDirectoryName(manifestPath)!,
+                directory,
                 "inference-execution.json");
             Assert.True(File.Exists(inferenceExecutionPath));
+            var inferenceReportPath = Path.Combine(directory, "inference-report.json");
+            Assert.True(File.Exists(inferenceReportPath));
+            var contextPack = await File.ReadAllTextAsync(contextPackPath);
+            Assert.Contains("# Architecture Review Context Pack", contextPack, StringComparison.Ordinal);
+            Assert.Contains("Review status: `insufficient`", contextPack, StringComparison.Ordinal);
+            Assert.DoesNotContain("inference-execution.json", contextPack, StringComparison.Ordinal);
         }
         finally
         {

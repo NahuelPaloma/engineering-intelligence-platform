@@ -5,9 +5,9 @@ transforms engineering knowledge into actionable intelligence.
 
 ## Current Status
 
-VS-001 Context Retrieval Pipeline is complete. Capability-002 now implements the
-deterministic Evidence → Claim → Hypothesis → Finding chain, without producing
-an Inference Report.
+VS-001 now integrates the completed Context Retrieval Pipeline with
+Capability-002. Architecture Review Intelligence consumes the official Inference
+Report and produces a deterministic Architecture Review Context Pack.
 
 ## Documentation
 
@@ -56,7 +56,9 @@ output/<pack-id>/
 ├── readme-metadata.json
 ├── readme-ranking.json
 ├── local-context.json
-└── inference-execution.json
+├── inference-execution.json
+├── inference-report.json
+└── context-pack.md
 ```
 
 The pack ID is derived from repository, Pull Request number, base SHA and head
@@ -96,6 +98,12 @@ Validation alone classifies and authorizes publication. The separate
 `inference-execution.json` technical record references the published report.
 Neither artifact contains Recommendations or Decisions.
 
+VS-001 consumes `inference-report.json` as its only functional input after
+Context Retrieval. It renders validated Findings into `context-pack.md` and does
+not reread README content, traverse the repository, create reasoning units or
+recalculate Confidence. `inference-execution.json` remains an internal technical
+record and is never used to construct the Architecture Review Context Pack.
+
 See the [Increment 1 demo](docs/demos/VS-001/increment-01.md) and its
 [example manifest](docs/demos/VS-001/examples/increment-01-manifest.json). The
 next baby step is recorded in the
@@ -131,3 +139,7 @@ Transversal reasoning controls are demonstrated in
 The completed Inference Engine is demonstrated in
 [Capability-002 Increment 5](docs/demos/Capability-002/increment-05.md), with an
 [example official report](docs/demos/Capability-002/examples/increment-05-inference-report.json).
+The first complete VS-001 vertical flow is demonstrated in
+[VS-001 and Capability-002 integration](docs/demos/VS-001/integration-capability-002.md),
+with an
+[example Architecture Review Context Pack](docs/demos/VS-001/examples/integration-context-pack.md).

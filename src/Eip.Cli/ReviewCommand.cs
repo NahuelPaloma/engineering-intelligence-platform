@@ -59,7 +59,10 @@ public sealed class ReviewCommand(
             rankingPath,
             cancellationToken);
         await Inference.InferencePipeline.ExecuteAsync(localContextPath, cancellationToken);
-        return manifestPath;
+        var inferenceReportPath = Path.Combine(directory, "inference-report.json");
+        return await ArchitectureReviewOrchestrator.WriteAsync(
+            inferenceReportPath,
+            cancellationToken);
     }
 
     private static string CreatePackId(EvidenceManifest manifest)

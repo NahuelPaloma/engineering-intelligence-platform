@@ -21,13 +21,13 @@ public static class Program
                 new GitHubEvidenceClient(httpClient),
                 allowlist,
                 TimeProvider.System);
-            var manifestPath = await command.ExecuteAsync(
+            var contextPackPath = await command.ExecuteAsync(
                 pullRequestUrl,
                 Environment.CurrentDirectory,
                 Path.Combine(Environment.CurrentDirectory, "output"),
                 CancellationToken.None);
 
-            Console.WriteLine(manifestPath);
+            Console.WriteLine(contextPackPath);
             return 0;
         }
         catch (Exception exception) when (exception is ArgumentException or UnauthorizedAccessException
