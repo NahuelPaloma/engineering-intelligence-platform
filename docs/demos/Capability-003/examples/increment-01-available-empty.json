@@ -1,0 +1,94 @@
+{
+  "execution_id": "71ad66d6f8518f0a6f3d171a54744cf62bf64d7c5c38a2e56832f1cc67e5492e",
+  "input_pack_id": "f166a136da542904223312b67fbb42ba5d1436fd29a399f7956d02ef50525bdd",
+  "rule_set_id": "capability-003-empty-rules-v1",
+  "status": "reasoning_completed",
+  "stages": [
+    {
+      "name": "input_boundary",
+      "status": "completed"
+    },
+    {
+      "name": "claim_processing",
+      "status": "completed"
+    },
+    {
+      "name": "hypothesis_processing",
+      "status": "completed"
+    },
+    {
+      "name": "finding_processing",
+      "status": "completed"
+    },
+    {
+      "name": "reasoning_controls",
+      "status": "completed"
+    },
+    {
+      "name": "report_builder",
+      "status": "completed"
+    }
+  ],
+  "counts": {
+    "evidence": 0,
+    "claims": 0,
+    "hypotheses": 0,
+    "findings": 0,
+    "abstentions": 0,
+    "discarded_candidates": 0,
+    "discarded_hypotheses": 0,
+    "discarded_findings": 0,
+    "contradictions": 0,
+    "discarded_contradictions": 0,
+    "discarded_abstentions": 0
+  },
+  "evidence": [],
+  "claims": [],
+  "discarded_candidates": [],
+  "hypotheses": [],
+  "discarded_hypotheses": [],
+  "findings": [],
+  "discarded_findings": [],
+  "contradictions": [],
+  "abstentions": [],
+  "uncertainty_summary": [],
+  "confidence_summary": {
+    "strong": 0,
+    "moderate": 0,
+    "weak": 0,
+    "insufficient": 0
+  },
+  "discarded_contradictions": [],
+  "discarded_abstentions": [],
+  "coverage": {
+    "total_scope": [],
+    "processed_scope": [],
+    "uncovered_scope": [],
+    "coverage_status": "full"
+  },
+  "execution_completeness_state": "inference_report_published",
+  "published_report": {
+    "report_id": "ebccd8a383ef49ed87a73a70da98e27645aeabd4de02551f68616c7335b87ad1",
+    "path": "inference-report.json",
+    "status": "complete"
+  },
+  "capability_context": {
+    "plugin_id": "capability-003",
+    "plugin_version": "1",
+    "profile_id": "capability-003-empty",
+    "profile_version": "1",
+    "rule_set_id": "capability-003-empty-rules-v1",
+    "taxonomy_id": "capability-003-empty-taxonomy",
+    "taxonomy_version": "1",
+    "input_identity": "ca02ed856f421c246284ccbf58b45aac0c83240db8de8fd97ec359ebb4818088",
+    "modified_files_availability": "available",
+    "admitted_modified_files_count": 0,
+    "admitted_modified_files": [],
+    "contract_detection_coverage": {
+      "total_scope": [],
+      "processed_scope": [],
+      "uncovered_scope": [],
+      "coverage_status": "complete"
+    }
+  }
+}

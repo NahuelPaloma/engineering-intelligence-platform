@@ -105,6 +105,13 @@ Validation alone classifies and authorizes publication. The separate
 `inference-execution.json` technical record references the published report.
 Neither artifact contains Recommendations or Decisions.
 
+Capability-003 Increment 1 admits Modified File Evidence through the shared
+Input Boundary without reading repository files. A missing `modified_files`
+field produces unknown Coverage and a total Abstention; a present empty array
+produces complete Coverage; a populated collection remains partially uncovered
+with cause `no_candidate_rules_registered`. Contract Candidates and Contract
+Types are not implemented.
+
 VS-001 consumes `inference-report.json` as its only functional input after
 Context Retrieval. It renders validated Findings into `context-pack.md` and does
 not reread README content, traverse the repository, create reasoning units or
@@ -150,7 +157,11 @@ Transversal reasoning controls are demonstrated in
 The completed Inference Engine is demonstrated in
 [Capability-002 Increment 5](docs/demos/Capability-002/increment-05.md), with an
 [example official report](docs/demos/Capability-002/examples/increment-05-inference-report.json).
-The first complete VS-001 vertical flow is demonstrated in
+Execution-profile coexistence is demonstrated in
+[Capability-003 Increment 0](docs/demos/Capability-003/increment-00.md).
+Modified File Evidence admission and Coverage are demonstrated in
+[Capability-003 Increment 1](docs/demos/Capability-003/increment-01.md). The
+first complete VS-001 vertical flow is demonstrated in
 [VS-001 and Capability-002 integration](docs/demos/VS-001/integration-capability-002.md),
 with an
 [example Architecture Review Context Pack](docs/demos/VS-001/examples/integration-context-pack.md).

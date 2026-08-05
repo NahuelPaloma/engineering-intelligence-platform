@@ -1,0 +1,152 @@
+{
+  "execution_id": "49b2809ef679032cf40454529104ce86e3088de8d9ee1d8710fc666648408ddb",
+  "input_pack_id": "f166a136da542904223312b67fbb42ba5d1436fd29a399f7956d02ef50525bdd",
+  "rule_set_id": "capability-003-empty-rules-v1",
+  "status": "reasoning_completed",
+  "stages": [
+    {
+      "name": "input_boundary",
+      "status": "completed"
+    },
+    {
+      "name": "claim_processing",
+      "status": "completed"
+    },
+    {
+      "name": "hypothesis_processing",
+      "status": "completed"
+    },
+    {
+      "name": "finding_processing",
+      "status": "completed"
+    },
+    {
+      "name": "reasoning_controls",
+      "status": "completed"
+    },
+    {
+      "name": "report_builder",
+      "status": "completed"
+    }
+  ],
+  "counts": {
+    "evidence": 0,
+    "claims": 0,
+    "hypotheses": 0,
+    "findings": 0,
+    "abstentions": 0,
+    "discarded_candidates": 0,
+    "discarded_hypotheses": 0,
+    "discarded_findings": 0,
+    "contradictions": 0,
+    "discarded_contradictions": 0,
+    "discarded_abstentions": 0
+  },
+  "evidence": [],
+  "claims": [],
+  "discarded_candidates": [],
+  "hypotheses": [],
+  "discarded_hypotheses": [],
+  "findings": [],
+  "discarded_findings": [],
+  "contradictions": [],
+  "abstentions": [],
+  "uncertainty_summary": [],
+  "confidence_summary": {
+    "strong": 0,
+    "moderate": 0,
+    "weak": 0,
+    "insufficient": 0
+  },
+  "discarded_contradictions": [],
+  "discarded_abstentions": [],
+  "coverage": {
+    "total_scope": [],
+    "processed_scope": [],
+    "uncovered_scope": [],
+    "coverage_status": "full"
+  },
+  "execution_completeness_state": "inference_report_published",
+  "published_report": {
+    "report_id": "ccaa76a97fb620dcc62472044551c63ff471fd4ca162a044302f45b42114f463",
+    "path": "inference-report.json",
+    "status": "complete"
+  },
+  "capability_context": {
+    "plugin_id": "capability-003",
+    "plugin_version": "1",
+    "profile_id": "capability-003-empty",
+    "profile_version": "1",
+    "rule_set_id": "capability-003-empty-rules-v1",
+    "taxonomy_id": "capability-003-empty-taxonomy",
+    "taxonomy_version": "1",
+    "input_identity": "562a5cba92aa01d2a11c8d88e3485944b9f5836f93f40341ed6e9192cc61c1cf",
+    "modified_files_availability": "available",
+    "admitted_modified_files_count": 2,
+    "admitted_modified_files": [
+      {
+        "evidence_id": "40929b7ead54633fa0aedeeba1e9d15ba0247b2c2131b7246720febe29e7517a",
+        "position": 0,
+        "path": "contracts/api.yaml",
+        "change_status": "modified",
+        "provenance": {
+          "provider": "github",
+          "repository": "example/widgets",
+          "pull_request": 123,
+          "source": "manifest.changed_files"
+        },
+        "scope": {
+          "evidence_id": "40929b7ead54633fa0aedeeba1e9d15ba0247b2c2131b7246720febe29e7517a",
+          "position": 0,
+          "path": "contracts/api.yaml"
+        }
+      },
+      {
+        "evidence_id": "896d8a6f8aff1f09d3e6b5d677fed740f2962f421a405b33c3140a7662704dd7",
+        "position": 1,
+        "path": "infrastructure/service.tf",
+        "change_status": "added",
+        "provenance": {
+          "provider": "github",
+          "repository": "example/widgets",
+          "pull_request": 123,
+          "source": "manifest.changed_files"
+        },
+        "scope": {
+          "evidence_id": "896d8a6f8aff1f09d3e6b5d677fed740f2962f421a405b33c3140a7662704dd7",
+          "position": 1,
+          "path": "infrastructure/service.tf"
+        }
+      }
+    ],
+    "contract_detection_coverage": {
+      "total_scope": [
+        {
+          "evidence_id": "40929b7ead54633fa0aedeeba1e9d15ba0247b2c2131b7246720febe29e7517a",
+          "position": 0,
+          "path": "contracts/api.yaml"
+        },
+        {
+          "evidence_id": "896d8a6f8aff1f09d3e6b5d677fed740f2962f421a405b33c3140a7662704dd7",
+          "position": 1,
+          "path": "infrastructure/service.tf"
+        }
+      ],
+      "processed_scope": [],
+      "uncovered_scope": [
+        {
+          "evidence_id": "40929b7ead54633fa0aedeeba1e9d15ba0247b2c2131b7246720febe29e7517a",
+          "position": 0,
+          "path": "contracts/api.yaml"
+        },
+        {
+          "evidence_id": "896d8a6f8aff1f09d3e6b5d677fed740f2962f421a405b33c3140a7662704dd7",
+          "position": 1,
+          "path": "infrastructure/service.tf"
+        }
+      ],
+      "coverage_status": "partial",
+      "cause": "no_candidate_rules_registered"
+    }
+  }
+}

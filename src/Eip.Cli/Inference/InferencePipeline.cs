@@ -72,7 +72,8 @@ internal static class InferencePipeline
             result.DiscardedAbstentions,
             result.Coverage,
             "reasoning_controls_completed",
-            null);
+            null,
+            result.CapabilityContext);
 
         var buildResult = InferenceReportBuilder.Build(execution);
         var validation = InferenceReportValidation.Decide(buildResult);
@@ -143,7 +144,9 @@ internal sealed record InferenceExecution(
     [property: JsonPropertyName("discarded_abstentions")] IReadOnlyList<DiscardedReason> DiscardedAbstentions,
     [property: JsonPropertyName("coverage")] CoverageSummary Coverage,
     [property: JsonPropertyName("execution_completeness_state")] string ExecutionCompletenessState,
-    [property: JsonPropertyName("published_report")] PublishedReportReference? PublishedReport);
+    [property: JsonPropertyName("published_report")] PublishedReportReference? PublishedReport,
+    [property: JsonPropertyName("capability_context"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    CapabilityExecutionContext? CapabilityContext = null);
 
 internal sealed record InferenceStage(
     [property: JsonPropertyName("name")] string Name,

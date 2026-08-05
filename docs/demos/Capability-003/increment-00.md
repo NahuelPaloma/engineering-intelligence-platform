@@ -37,7 +37,7 @@ dotnet test \
 Resultado esperado:
 
 ```text
-Passed: 6, Failed: 0, Skipped: 0
+Passed: 7, Failed: 0, Skipped: 0
 ```
 
 ## Evidencia observable

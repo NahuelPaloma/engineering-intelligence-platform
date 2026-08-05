@@ -1,0 +1,112 @@
+{
+  "execution_id": "d0e6dd90d81d121cfc4b6ef69111a5401bfa43f8051164774d0a343d5a5ab564",
+  "input_pack_id": "f166a136da542904223312b67fbb42ba5d1436fd29a399f7956d02ef50525bdd",
+  "rule_set_id": "capability-003-empty-rules-v1",
+  "status": "reasoning_totally_abstained",
+  "stages": [
+    {
+      "name": "input_boundary",
+      "status": "completed"
+    },
+    {
+      "name": "claim_processing",
+      "status": "completed"
+    },
+    {
+      "name": "hypothesis_processing",
+      "status": "completed"
+    },
+    {
+      "name": "finding_processing",
+      "status": "completed"
+    },
+    {
+      "name": "reasoning_controls",
+      "status": "completed"
+    },
+    {
+      "name": "report_builder",
+      "status": "completed"
+    }
+  ],
+  "counts": {
+    "evidence": 0,
+    "claims": 0,
+    "hypotheses": 0,
+    "findings": 0,
+    "abstentions": 1,
+    "discarded_candidates": 0,
+    "discarded_hypotheses": 0,
+    "discarded_findings": 0,
+    "contradictions": 0,
+    "discarded_contradictions": 0,
+    "discarded_abstentions": 0
+  },
+  "evidence": [],
+  "claims": [],
+  "discarded_candidates": [],
+  "hypotheses": [],
+  "discarded_hypotheses": [],
+  "findings": [],
+  "discarded_findings": [],
+  "contradictions": [],
+  "abstentions": [
+    {
+      "abstention_id": "2105606e8ab4105e0e9e0251aa2e88cd679d855e465ca4f0bb3c6fa6fadcb138",
+      "type": "total",
+      "blocked_unit_type": "contract_detection",
+      "blocked_scope": {
+        "type": "modified_files_collection",
+        "document_path": "f166a136da542904223312b67fbb42ba5d1436fd29a399f7956d02ef50525bdd"
+      },
+      "condition": "modified_files_not_provided",
+      "available_evidence_ids": [],
+      "missing_evidence_description": "Modified File Evidence was not provided by the producer.",
+      "uncertainty_ids": [],
+      "contradiction_ids": [],
+      "remaining_valid_scope": [],
+      "status": "abstained"
+    }
+  ],
+  "uncertainty_summary": [],
+  "confidence_summary": {
+    "strong": 0,
+    "moderate": 0,
+    "weak": 0,
+    "insufficient": 0
+  },
+  "discarded_contradictions": [],
+  "discarded_abstentions": [],
+  "coverage": {
+    "total_scope": [],
+    "processed_scope": [],
+    "uncovered_scope": [],
+    "coverage_status": "full"
+  },
+  "execution_completeness_state": "inference_report_published",
+  "published_report": {
+    "report_id": "883c4b823c968b23e0f01e639fdc6a1671a798c5ee51cfdc16f9f0bef1c3da98",
+    "path": "inference-report.json",
+    "status": "complete"
+  },
+  "capability_context": {
+    "plugin_id": "capability-003",
+    "plugin_version": "1",
+    "profile_id": "capability-003-empty",
+    "profile_version": "1",
+    "rule_set_id": "capability-003-empty-rules-v1",
+    "taxonomy_id": "capability-003-empty-taxonomy",
+    "taxonomy_version": "1",
+    "input_identity": "52b1e6f3d5b9959b4e00f2a6235848056ff3174a1f99ef373904043c59932e6c",
+    "modified_files_availability": "not_provided",
+    "admitted_modified_files_count": 0,
+    "admitted_modified_files": [],
+    "contract_detection_coverage": {
+      "total_scope": [],
+      "processed_scope": [],
+      "uncovered_scope": [],
+      "coverage_status": "unknown",
+      "cause": "modified_files_not_provided"
+    }
+  }
+}

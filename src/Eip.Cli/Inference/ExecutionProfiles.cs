@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Security.Cryptography;
 using System.Text;
@@ -10,25 +11,32 @@ internal sealed record RuleDescriptor(string RuleId, int Order);
 internal sealed record ExecutionProfile
 {
     public ExecutionProfile(
+        string pluginId,
+        string pluginVersion,
         string profileId,
         string profileVersion,
         string ruleSetId,
         string taxonomyId,
         string taxonomyVersion,
+        IEnumerable<IProfileInputAdapter> inputAdapters,
         IEnumerable<RuleDescriptor> rules,
         IEnumerable<IDomainRuleAdapter> domainRuleAdapters,
         IEnumerable<IProfileValidationAdapter> validationAdapters)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(pluginId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(pluginVersion);
         ArgumentException.ThrowIfNullOrWhiteSpace(profileId);
         ArgumentException.ThrowIfNullOrWhiteSpace(profileVersion);
         ArgumentException.ThrowIfNullOrWhiteSpace(ruleSetId);
         ArgumentException.ThrowIfNullOrWhiteSpace(taxonomyId);
         ArgumentException.ThrowIfNullOrWhiteSpace(taxonomyVersion);
+        ArgumentNullException.ThrowIfNull(inputAdapters);
         ArgumentNullException.ThrowIfNull(rules);
         ArgumentNullException.ThrowIfNull(domainRuleAdapters);
         ArgumentNullException.ThrowIfNull(validationAdapters);
 
         var orderedRules = rules.OrderBy(rule => rule.Order).ToImmutableArray();
+        var inputs = inputAdapters.ToImmutableArray();
         var adapters = domainRuleAdapters.ToImmutableArray();
         var validations = validationAdapters.ToImmutableArray();
         if (orderedRules.Select(rule => rule.RuleId).Any(string.IsNullOrWhiteSpace)
@@ -43,24 +51,38 @@ internal sealed record ExecutionProfile
             throw new ArgumentException("The execution profile is invalid.", nameof(rules));
         }
 
+        PluginId = pluginId;
+        PluginVersion = pluginVersion;
         ProfileId = profileId;
         ProfileVersion = profileVersion;
         RuleSetId = ruleSetId;
         TaxonomyId = taxonomyId;
         TaxonomyVersion = taxonomyVersion;
+        InputAdapters = inputs;
         Rules = orderedRules;
         DomainRuleAdapters = adapters;
         ValidationAdapters = validations;
     }
 
+    public string PluginId { get; }
+    public string PluginVersion { get; }
     public string ProfileId { get; }
     public string ProfileVersion { get; }
     public string RuleSetId { get; }
     public string TaxonomyId { get; }
     public string TaxonomyVersion { get; }
+    public ImmutableArray<IProfileInputAdapter> InputAdapters { get; }
     public ImmutableArray<RuleDescriptor> Rules { get; }
     public ImmutableArray<IDomainRuleAdapter> DomainRuleAdapters { get; }
     public ImmutableArray<IProfileValidationAdapter> ValidationAdapters { get; }
+}
+
+internal interface IProfileInputAdapter
+{
+    void Execute(
+        ExecutionProfile profile,
+        InputBoundaryResult input,
+        ProfileReasoningState state);
 }
 
 internal interface IDomainRuleAdapter
@@ -91,7 +113,9 @@ internal sealed record ProfileReasoningResult(
     IReadOnlyList<AbstentionUnit> Abstentions,
     IReadOnlyList<DiscardedReason> DiscardedContradictions,
     IReadOnlyList<DiscardedReason> DiscardedAbstentions,
-    CoverageSummary Coverage);
+    CoverageSummary Coverage,
+    CapabilityExecutionContextCandidate? CapabilityContextCandidate,
+    CapabilityExecutionContext? CapabilityContext);
 
 internal sealed class ProfileReasoningState
 {
@@ -102,6 +126,7 @@ internal sealed class ProfileReasoningState
     public List<DiscardedHypothesis> DiscardedHypotheses { get; } = [];
     public List<FindingUnit> Findings { get; } = [];
     public List<DiscardedFinding> DiscardedFindings { get; } = [];
+    public CapabilityExecutionContextCandidate? CapabilityContextCandidate { get; set; }
 
     public ProfileReasoningResult Complete(InputBoundaryResult input) =>
         new(
@@ -116,7 +141,9 @@ internal sealed class ProfileReasoningState
             [],
             [],
             [],
-            CoverageProcessing.Create(input.Documents, Findings));
+            CoverageProcessing.Create(input.Documents, Findings),
+            CapabilityContextCandidate,
+            null);
 }
 
 internal static class ExecutionProfileRegistry
@@ -126,15 +153,18 @@ internal static class ExecutionProfileRegistry
 
     private static readonly IProfileValidationAdapter Validation = new ProfileIsolationValidationAdapter();
 
-    private static readonly Dictionary<string, ExecutionProfile> Profiles =
+    private static readonly FrozenDictionary<string, ExecutionProfile> Profiles =
         new Dictionary<string, ExecutionProfile>(StringComparer.Ordinal)
         {
             [Capability002ProfileId] = new(
+                "capability-002",
+                "1",
                 Capability002ProfileId,
                 "1",
                 "capability-002-reasoning-controls-v1",
                 "capability-002-document-context",
                 "1",
+                [],
                 [
                     new(DocumentAvailabilityRule.RuleId, 1),
                     new(AvailableDocumentContextRule.RuleId, 2),
@@ -147,15 +177,20 @@ internal static class ExecutionProfileRegistry
                 ],
                 [Validation]),
             [Capability003ProfileId] = new(
+                "capability-003",
+                "1",
                 Capability003ProfileId,
                 "1",
                 "capability-003-empty-rules-v1",
                 "capability-003-empty-taxonomy",
                 "1",
+                [new ModifiedFileEvidenceAdmissionAdapter()],
                 [],
                 [],
-                [Validation])
-        };
+                [Validation, new ModifiedFileEvidenceAdmissionValidationAdapter()])
+        }.ToFrozenDictionary(StringComparer.Ordinal);
+
+    internal static FrozenDictionary<string, ExecutionProfile> RegisteredProfiles => Profiles;
 
     public static ExecutionProfile Resolve(string profileId)
     {
@@ -184,6 +219,11 @@ internal static class RuleRuntime
         InputBoundaryResult input)
     {
         var state = new ProfileReasoningState();
+        foreach (var adapter in profile.InputAdapters)
+        {
+            adapter.Execute(profile, input, state);
+        }
+
         foreach (var adapter in profile.DomainRuleAdapters)
         {
             adapter.Execute(input, state);
@@ -321,6 +361,8 @@ internal static class ExecutionIdentity
             writer.WriteStartObject();
             writer.WriteString("canonical_context_identity", canonicalContextIdentity);
             writer.WriteString("contract_id", InputBoundary.ContractId);
+            writer.WriteString("plugin_id", profile.PluginId);
+            writer.WriteString("plugin_version", profile.PluginVersion);
             writer.WriteString("execution_profile_id", profile.ProfileId);
             writer.WriteString("execution_profile_version", profile.ProfileVersion);
             writer.WriteString("rule_set_id", profile.RuleSetId);
@@ -333,7 +375,9 @@ internal static class ExecutionIdentity
     }
 
     private static bool IsAcceptedCapability002Profile(ExecutionProfile profile) =>
-        profile.ProfileId == ExecutionProfileRegistry.Capability002ProfileId
+        profile.PluginId == "capability-002"
+        && profile.PluginVersion == "1"
+        && profile.ProfileId == ExecutionProfileRegistry.Capability002ProfileId
         && profile.ProfileVersion == "1"
         && profile.RuleSetId == "capability-002-reasoning-controls-v1"
         && profile.TaxonomyId == "capability-002-document-context"
