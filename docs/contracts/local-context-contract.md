@@ -38,12 +38,47 @@ the internal retrieval process this contract guarantees.
 
 The top-level object contains:
 
-| Field          | Type           | Requirement | Meaning                                     |
-| -------------- | -------------- | ----------- | ------------------------------------------- |
-| `repository`   | string         | Required    | Source repository identifier and provenance |
-| `pull_request` | positive int   | Required    | Source change identifier and correlation    |
-| `pack_id`      | string         | Required    | Stable identifier for the source revision   |
-| `documents`    | document array | Required    | Context ordered by retrieval ranking        |
+| Field            | Type                | Requirement | Meaning                                                        |
+| ---------------- | ------------------- | ----------- | -------------------------------------------------------------- |
+| `repository`     | string              | Required    | Source repository identifier and provenance                    |
+| `pull_request`   | positive int        | Required    | Source change identifier and correlation                       |
+| `pack_id`        | string              | Required    | Stable identifier for the source revision                      |
+| `modified_files` | modified file array | Optional    | Authorized changed-file evidence when supplied by the producer |
+| `documents`      | document array      | Required    | Context ordered by retrieval ranking                           |
+
+Each modified file contains:
+
+| Field           | Type       | Requirement | Meaning                                       |
+| --------------- | ---------- | ----------- | --------------------------------------------- |
+| `path`          | string     | Required    | Valid repository-relative changed-file path   |
+| `change_status` | string     | Required    | Demonstrated change kind                      |
+| `provenance`    | provenance | Required    | Minimal reference to the authorized PR source |
+
+Allowed `change_status` values are:
+
+- `added`;
+- `modified`;
+- `deleted`;
+- `renamed`.
+
+The GitHub producer maps the source status `removed` to `deleted`. It preserves
+`added`, `modified` and `renamed`. Any other source status is unsupported and
+must fail closed rather than be copied or inferred into this contract.
+
+`path` is validated lexically. It must be non-empty, repository-relative, use
+forward-slash separators and contain neither control characters nor empty, `.`
+or `..` segments. The producer and consumer do not resolve symlinks or use this
+value to access the filesystem at the inference boundary.
+
+Each `provenance` contains only `provider`, `repository`, `pull_request` and
+`source`. `repository` and `pull_request` must match the top-level identity;
+`source` is `manifest.changed_files`. These identifiers demonstrate origin and
+correlation but never authorize further source access.
+
+The order of `modified_files` is the stable first-occurrence order from
+`manifest.changed_files`. Exact duplicates are collapsed deterministically;
+conflicting entries for one path are invalid. An empty array explicitly means
+that the producer observed zero supported changed files.
 
 Each document contains:
 
@@ -98,6 +133,14 @@ Consumers must reject malformed artifacts or artifacts that do not conform to a
 contract version they support. Consumers may ignore new optional fields
 introduced compatibly, but must not infer missing required fields.
 
+`modified_files` is an additive optional field in version 1. Updated producers
+always emit it, including as an empty array. Updated consumers accept older
+version 1 artifacts where it is absent, but preserve that absence as
+`not_provided` rather than treating it as an empty Evidence collection. A
+present empty array is `available` Evidence with zero elements. Older consumers
+remain compatible because they may ignore the optional field. Presence of the
+field does not authorize current reasoning Rules to create Claims from it.
+
 The following changes are incompatible:
 
 - removing or renaming a required field;
@@ -118,6 +161,33 @@ Compatible clarifications and optional additions may update this document while
 retaining version 1. Incompatible changes require a new contract version,
 migration guidance and an Architecture Decision Record.
 
+The `modified_files` addition retains version 1 because it is optional, does not
+alter existing fields or ordering semantics and is ignorable by older consumers.
+The artifact still has no physical `contract_version` field; `local-context-v1`
+remains the supported conceptual contract identifier.
+
+`pack_id` continues to identify repository, Pull Request, base SHA and head SHA;
+the new collection does not change it. `execution_id` identifies the admitted
+context and therefore includes a deterministic canonical identity of the known
+version 1 fields, the supported conceptual contract identifier and the Rule set
+identifier. It does not use timestamps, paths to the artifact, machine state or
+other external values.
+
+Canonicalization uses fixed property ordering for known contract objects,
+normalizes irrelevant JSON formatting and object property order, and preserves
+the contractual order of `modified_files`, `documents` and nested Evidence. It
+includes an explicit `available` or `not_provided` presence marker before
+hashing, so absent, present-empty and present-populated collections have
+distinct identities. Changes to `path`, `change_status` or any admitted
+provenance field also change the canonical identity. Unknown optional fields
+ignored by a version 1 consumer do not enter that consumer's admitted identity.
+
+Artifacts with and without `modified_files` can retain the same `pack_id`
+because they describe the same source revision, but they produce distinct
+`execution_id` values because their admitted contextual coverage differs. No
+current Rule consumes the new collection, so the functional Findings and
+downstream product behavior remain unchanged.
+
 **Los cambios incompatibles requieren un ADR.**
 
 ## Stability
@@ -130,3 +200,11 @@ Stability does not freeze future context categories or providers. GitLab, Jira,
 Confluence, ADRs, runbooks, incident reports and other sources may contribute
 context in the future if they preserve this boundary and follow the
 compatibility rules above.
+
+## Document history
+
+| Date       | Change                                                                       | Result     |
+| ---------- | ---------------------------------------------------------------------------- | ---------- |
+| 2026-08-04 | Initial canonical contract governed by ADR-013                               | `Accepted` |
+| 2026-08-04 | Added optional `modified_files` Evidence without changing contract v1        | `Accepted` |
+| 2026-08-04 | Preserved absence semantics and bound execution identity to admitted context | `Accepted` |

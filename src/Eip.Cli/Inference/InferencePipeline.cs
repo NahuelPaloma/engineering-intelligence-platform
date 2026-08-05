@@ -92,7 +92,7 @@ internal static class InferencePipeline
         var coverage = CoverageProcessing.Create(input.Documents, findings);
 
         var execution = new InferenceExecution(
-            CreateExecutionId(input.PackId),
+            CreateExecutionId(input.CanonicalContextIdentity),
             input.PackId,
             ReasoningRuleSetId,
             DetermineStatus(findings.Count, abstentions),
@@ -150,9 +150,9 @@ internal static class InferencePipeline
             cancellationToken);
     }
 
-    private static string CreateExecutionId(string packId)
+    private static string CreateExecutionId(string canonicalContextIdentity)
     {
-        var identity = $"{packId}\n{InputBoundary.ContractId}\n{ReasoningRuleSetId}";
+        var identity = $"{canonicalContextIdentity}\n{InputBoundary.ContractId}\n{ReasoningRuleSetId}";
         return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(identity)));
     }
 

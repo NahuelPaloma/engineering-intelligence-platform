@@ -22,6 +22,15 @@ public static class LocalContextBuilder
         "repository_root"
     };
 
+    private static readonly Dictionary<string, string> ChangedFileStatusMappings =
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["added"] = "added",
+            ["modified"] = "modified",
+            ["removed"] = "deleted",
+            ["renamed"] = "renamed"
+        };
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true
@@ -46,6 +55,8 @@ public static class LocalContextBuilder
         ValidateManifest(manifest);
         ValidateDocuments(readmes, contents, metadata, ranking);
 
+        var modifiedFiles = BuildModifiedFiles(manifest);
+
         var contentsByPath = contents.Documents.ToDictionary(document => document.Path, StringComparer.Ordinal);
         var metadataByPath = metadata.Documents.ToDictionary(document => document.Path, StringComparer.Ordinal);
         var documents = ranking.Documents.Select(ranked =>
@@ -67,6 +78,7 @@ public static class LocalContextBuilder
             manifest.Repository,
             manifest.PullRequest,
             CreatePackId(manifest),
+            modifiedFiles,
             documents);
         var outputPath = Path.Combine(Path.GetDirectoryName(manifestPath)!, "local-context.json");
         var temporaryPath = $"{outputPath}.tmp";
@@ -123,6 +135,45 @@ public static class LocalContextBuilder
         }
     }
 
+    private static List<LocalContextModifiedFile> BuildModifiedFiles(EvidenceManifest manifest)
+    {
+        var modifiedFiles = new List<LocalContextModifiedFile>();
+        var statusesByPath = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var changedFile in manifest.ChangedFiles)
+        {
+            if (changedFile is null
+                || InvalidRepositoryRelativePath(changedFile.Path)
+                || string.IsNullOrWhiteSpace(changedFile.Status)
+                || !ChangedFileStatusMappings.TryGetValue(changedFile.Status, out var changeStatus))
+            {
+                throw new InvalidDataException("The manifest contains an invalid changed file.");
+            }
+
+            if (statusesByPath.TryGetValue(changedFile.Path, out var existingStatus))
+            {
+                if (existingStatus != changeStatus)
+                {
+                    throw new InvalidDataException("The manifest contains ambiguous changed files.");
+                }
+
+                continue;
+            }
+
+            statusesByPath.Add(changedFile.Path, changeStatus);
+            modifiedFiles.Add(new LocalContextModifiedFile(
+                changedFile.Path,
+                changeStatus,
+                new LocalContextModifiedFileProvenance(
+                    "github",
+                    manifest.Repository,
+                    manifest.PullRequest,
+                    "manifest.changed_files")));
+        }
+
+        return modifiedFiles;
+    }
+
     private static void ValidateDocuments(
         ReadmeCandidates readmes,
         ReadmeDocuments contents,
@@ -175,6 +226,27 @@ public static class LocalContextBuilder
 
     private static bool InvalidPath(string path) => string.IsNullOrWhiteSpace(path);
 
+    private static bool InvalidRepositoryRelativePath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path)
+            || path[0] == '/'
+            || path.Contains('\\')
+            || path.Any(char.IsControl)
+            || LooksLikeWindowsDrivePath(path))
+        {
+            return true;
+        }
+
+        var segments = path.Split('/');
+        return segments.Any(segment => segment.Length == 0 || segment is "." or "..");
+    }
+
+    private static bool LooksLikeWindowsDrivePath(string path) =>
+        path.Length >= 3
+        && char.IsAsciiLetter(path[0])
+        && path[1] == ':'
+        && path[2] == '/';
+
     private static string CreatePackId(EvidenceManifest manifest)
     {
         var identity = $"{manifest.Repository}\n{manifest.PullRequest}\n{manifest.BaseSha}\n{manifest.HeadSha}";
@@ -186,7 +258,19 @@ public sealed record LocalContext(
     [property: JsonPropertyName("repository")] string Repository,
     [property: JsonPropertyName("pull_request")] int PullRequest,
     [property: JsonPropertyName("pack_id")] string PackId,
+    [property: JsonPropertyName("modified_files")] IReadOnlyList<LocalContextModifiedFile> ModifiedFiles,
     [property: JsonPropertyName("documents")] IReadOnlyList<LocalContextDocument> Documents);
+
+public sealed record LocalContextModifiedFile(
+    [property: JsonPropertyName("path")] string Path,
+    [property: JsonPropertyName("change_status")] string ChangeStatus,
+    [property: JsonPropertyName("provenance")] LocalContextModifiedFileProvenance Provenance);
+
+public sealed record LocalContextModifiedFileProvenance(
+    [property: JsonPropertyName("provider")] string Provider,
+    [property: JsonPropertyName("repository")] string Repository,
+    [property: JsonPropertyName("pull_request")] int PullRequest,
+    [property: JsonPropertyName("source")] string Source);
 
 public sealed record LocalContextDocument(
     [property: JsonPropertyName("path")] string Path,

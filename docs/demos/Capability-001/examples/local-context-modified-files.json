@@ -1,0 +1,46 @@
+{
+  "repository": "example/widgets",
+  "pull_request": 123,
+  "pack_id": "f166a136da542904223312b67fbb42ba5d1436fd29a399f7956d02ef50525bdd",
+  "modified_files": [
+    {
+      "path": "contracts/payments.yaml",
+      "change_status": "modified",
+      "provenance": {
+        "provider": "github",
+        "repository": "example/widgets",
+        "pull_request": 123,
+        "source": "manifest.changed_files"
+      }
+    },
+    {
+      "path": "contracts/legacy.json",
+      "change_status": "deleted",
+      "provenance": {
+        "provider": "github",
+        "repository": "example/widgets",
+        "pull_request": 123,
+        "source": "manifest.changed_files"
+      }
+    }
+  ],
+  "documents": [
+    {
+      "path": "README.md",
+      "score": 10,
+      "reason": "repository_root",
+      "name": "Example Repository",
+      "purpose": null,
+      "content": "# Example Repository\n",
+      "status": "missing_purpose",
+      "evidence": [
+        {
+          "field": "name",
+          "text": "Example Repository",
+          "source_line_start": 1,
+          "source_line_end": 1
+        }
+      ]
+    }
+  ]
+}

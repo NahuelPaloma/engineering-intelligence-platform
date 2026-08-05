@@ -65,8 +65,8 @@ Passed: 1, Failed: 0, Skipped: 0
 
 - Input Boundary lee únicamente `local-context.json` y rechaza entradas
   incompatibles;
-- `execution_id` depende sólo de `input_pack_id`, el contrato soportado y el
-  Rule Set vacío;
+- `execution_id` depende de la identidad canónica del contexto admitido, el
+  contrato soportado y el Rule Set vacío;
 - el orden de las etapas es estable;
 - la ejecución termina antes de Claim Processing;
 - no existen Evidence de dominio, Claims, Hypotheses, Findings ni Abstentions;

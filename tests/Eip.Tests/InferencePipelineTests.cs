@@ -748,7 +748,7 @@ public sealed class InferencePipelineTests
     private const string ClaimRuleSetExecutionId = "1969c9398663134ffa16150a95895cfdde875fa3a49bb9586241a07c9bf95d72";
     private const string HypothesisRuleSetExecutionId = "74db47e4af789d056f1f4b318638313df357ab48c654dc6b4b87d33fff01be68";
     private const string FindingRuleSetExecutionId = "97dc00f0cdf225591e8b1e3c674c4d9164504fb023b47736081add877145a7dc";
-    private const string ReasoningRuleSetExecutionId = "6d155124967a6661350c6b7946ecbb6541e8913efb2aaf2371328472511bff80";
+    private const string ReasoningRuleSetExecutionId = "221e7d352a304daf65237ad7cbdc1727e34b6769f6f84d32ac654873e2bcd188";
 
     private static Cli.Inference.EvidenceUnit CreateEvidence(
         string evidenceId,

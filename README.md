@@ -87,9 +87,16 @@ by ordinal path without reading repository files or README content.
 deterministic input for the future Inference Engine. It is the official contract
 between Context Retrieval and inference, as established by
 [ADR-013](docs/architecture/adr/ADR-013-local-context-contract.md). It preserves
-ranking order, content, metadata, status and evidence without rereading or
-interpreting the repository. Inconsistent inputs fail without producing partial
-context.
+changed-file Evidence, ranking order, content, metadata, status and evidence
+without rereading or interpreting the repository. `modified_files` contains only
+validated paths, demonstrated change status and minimal Pull Request provenance;
+it does not contain diffs, content or contract classification. Inconsistent
+inputs fail without producing partial context.
+
+The Input Boundary distinguishes an older context where `modified_files` was not
+provided from a present empty collection. `pack_id` continues to identify the
+Pull Request revision; `execution_id` additionally binds the canonical admitted
+context, supported contract and Rule Set.
 
 Capability-002 is implemented end to end. The Inference Engine now transforms a
 valid `local-context.json` into a deterministic, contractually validated
@@ -121,6 +128,10 @@ Deterministic location ranking is demonstrated in
 The completed retrieval pipeline is demonstrated in
 [Increment 3.0](docs/demos/VS-001/increment-03-0.md), with an
 [example local context](docs/demos/VS-001/examples/increment-03-0-local-context.json).
+The compatible Local Context Contract evolution is demonstrated in
+[Capability-001 — modified file Evidence](docs/demos/Capability-001/local-context-modified-files.md),
+with an
+[updated example local context](docs/demos/Capability-001/examples/local-context-modified-files.json).
 The empty Inference Engine pipeline is demonstrated in
 [Capability-002 Increment 0](docs/demos/Capability-002/increment-00.md), with an
 [example execution record](docs/demos/Capability-002/examples/increment-00-inference-execution.json).

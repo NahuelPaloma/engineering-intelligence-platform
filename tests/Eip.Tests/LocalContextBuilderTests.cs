@@ -41,6 +41,118 @@ public sealed class LocalContextBuilderTests
         }
     }
 
+    [Fact]
+    public async Task TransportsModifiedFilesWithNormalizedStatusProvenanceAndStableOrder()
+    {
+        var root = CreateTemporaryDirectory();
+
+        try
+        {
+            Cli.ChangedFileEvidence[] changedFiles =
+            [
+                new("src/added.json", "added", null, 1, 0),
+                new("src/modified.yaml", "modified", null, 1, 1),
+                new("src/deleted.yml", "removed", null, 0, 1),
+                new("src/renamed.json", "renamed", "src/old.json", 0, 0),
+                new("src/added.json", "added", null, 1, 0)
+            ];
+            var inputs = await WriteInputsAsync(root, changedFiles: changedFiles);
+            var outputPath = await WriteLocalContextAsync(inputs);
+
+            using var output = JsonDocument.Parse(await File.ReadAllBytesAsync(outputPath));
+            var modifiedFiles = output.RootElement.GetProperty("modified_files").EnumerateArray().ToArray();
+            Assert.Equal(4, modifiedFiles.Length);
+            Assert.Equal(
+                ["src/added.json", "src/modified.yaml", "src/deleted.yml", "src/renamed.json"],
+                modifiedFiles.Select(item => item.GetProperty("path").GetString()!).ToArray());
+            Assert.Equal(
+                ["added", "modified", "deleted", "renamed"],
+                modifiedFiles.Select(item => item.GetProperty("change_status").GetString()!).ToArray());
+            foreach (var item in modifiedFiles)
+            {
+                var provenance = item.GetProperty("provenance");
+                Assert.Equal("github", provenance.GetProperty("provider").GetString());
+                Assert.Equal("example/widgets", provenance.GetProperty("repository").GetString());
+                Assert.Equal(123, provenance.GetProperty("pull_request").GetInt32());
+                Assert.Equal("manifest.changed_files", provenance.GetProperty("source").GetString());
+                Assert.Equal(3, item.EnumerateObject().Count());
+            }
+        }
+        finally
+        {
+            Directory.Delete(root, true);
+        }
+    }
+
+    [Fact]
+    public async Task EmitsEmptyModifiedFilesWhenManifestHasNoChangedFiles()
+    {
+        var root = CreateTemporaryDirectory();
+
+        try
+        {
+            var inputs = await WriteInputsAsync(root);
+            var outputPath = await WriteLocalContextAsync(inputs);
+
+            using var output = JsonDocument.Parse(await File.ReadAllBytesAsync(outputPath));
+            Assert.Empty(output.RootElement.GetProperty("modified_files").EnumerateArray());
+        }
+        finally
+        {
+            Directory.Delete(root, true);
+        }
+    }
+
+    [Theory]
+    [InlineData("/absolute/contract.yaml", "modified")]
+    [InlineData("C:/absolute/contract.yaml", "modified")]
+    [InlineData("../contract.yaml", "modified")]
+    [InlineData("contracts/../contract.yaml", "modified")]
+    [InlineData("contracts\\contract.yaml", "modified")]
+    [InlineData("contracts/contract.yaml", "copied")]
+    public async Task RejectsInvalidModifiedFileWithoutWritingOutput(string path, string status)
+    {
+        var root = CreateTemporaryDirectory();
+
+        try
+        {
+            var inputs = await WriteInputsAsync(
+                root,
+                changedFiles: [new(path, status, null, 0, 0)]);
+
+            await Assert.ThrowsAsync<InvalidDataException>(() => WriteLocalContextAsync(inputs));
+            Assert.False(File.Exists(Path.Combine(root, "local-context.json")));
+        }
+        finally
+        {
+            Directory.Delete(root, true);
+        }
+    }
+
+    [Fact]
+    public async Task RejectsDuplicatePathWithConflictingStatuses()
+    {
+        var root = CreateTemporaryDirectory();
+
+        try
+        {
+            var inputs = await WriteInputsAsync(
+                root,
+                changedFiles:
+                [
+                    new("contracts/api.yaml", "added", null, 0, 0),
+                    new("contracts/api.yaml", "modified", null, 0, 0)
+                ]);
+
+            await Assert.ThrowsAsync<InvalidDataException>(() => WriteLocalContextAsync(inputs));
+            Assert.False(File.Exists(Path.Combine(root, "local-context.json")));
+        }
+        finally
+        {
+            Directory.Delete(root, true);
+        }
+    }
+
     [Theory]
     [InlineData("insufficient")]
     [InlineData("missing_name")]
@@ -176,7 +288,10 @@ public sealed class LocalContextBuilderTests
         }
     }
 
-    private static async Task<InputFiles> WriteInputsAsync(string root, string firstStatus = "extracted")
+    private static async Task<InputFiles> WriteInputsAsync(
+        string root,
+        string firstStatus = "extracted",
+        IReadOnlyList<Cli.ChangedFileEvidence>? changedFiles = null)
     {
         var manifest = new Cli.EvidenceManifest(
             "example/widgets",
@@ -187,7 +302,7 @@ public sealed class LocalContextBuilderTests
             "base-sha",
             "head-sha",
             [],
-            [],
+            changedFiles ?? [],
             new DateTimeOffset(2026, 8, 4, 12, 0, 0, TimeSpan.Zero));
         var readmes = new Cli.ReadmeCandidates(
         [
