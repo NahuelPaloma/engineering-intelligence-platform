@@ -11,7 +11,7 @@ internal static class InferencePipeline
         new("input_boundary", "completed"),
         new("claim_processing", "completed"),
         new("hypothesis_processing", "completed"),
-        new("finding_processing", "not_implemented"),
+        new("finding_processing", "completed"),
         new("report_builder", "not_implemented")
     ];
 
@@ -57,25 +57,53 @@ internal static class InferencePipeline
             }
         }
 
+        var claimsById = claims.ToDictionary(item => item.ClaimId, StringComparer.Ordinal);
+        var findings = new List<FindingUnit>();
+        var discardedFindings = new List<DiscardedFinding>();
+        foreach (var hypothesis in hypotheses)
+        {
+            var applicability = AvailableDocumentContextFindingRule.Evaluate(
+                hypothesis,
+                claimsById,
+                evidenceById);
+            var candidate = FindingProcessing.CreateCandidate(hypothesis, claimsById, applicability);
+            var decision = FindingValidation.Decide(
+                candidate,
+                hypothesis,
+                claimsById,
+                evidenceById);
+            if (decision.Status == "valid")
+            {
+                findings.Add(decision.Finding!);
+            }
+            else
+            {
+                discardedFindings.Add(decision.Discard!);
+            }
+        }
+
         var execution = new InferenceExecution(
             CreateExecutionId(input.PackId),
             input.PackId,
-            AvailableDocumentContextRule.RuleSetId,
-            DetermineStatus(claims.Count, hypotheses.Count),
+            AvailableDocumentContextFindingRule.RuleSetId,
+            DetermineStatus(claims.Count, hypotheses.Count, findings.Count),
             Stages,
             new InferenceCounts(
                 evidence.Count,
                 claims.Count,
                 hypotheses.Count,
-                0,
+                findings.Count,
                 0,
                 discardedCandidates.Count,
-                discardedHypotheses.Count),
+                discardedHypotheses.Count,
+                discardedFindings.Count),
             evidence,
             claims,
             discardedCandidates,
             hypotheses,
-            discardedHypotheses);
+            discardedHypotheses,
+            findings,
+            discardedFindings);
 
         return await InferenceExecutionWriter.WriteAsync(
             localContextPath,
@@ -85,12 +113,13 @@ internal static class InferencePipeline
 
     private static string CreateExecutionId(string packId)
     {
-        var identity = $"{packId}\n{InputBoundary.ContractId}\n{AvailableDocumentContextRule.RuleSetId}";
+        var identity = $"{packId}\n{InputBoundary.ContractId}\n{AvailableDocumentContextFindingRule.RuleSetId}";
         return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(identity)));
     }
 
-    private static string DetermineStatus(int claimCount, int hypothesisCount) =>
-        hypothesisCount > 0 ? "hypotheses_produced"
+    private static string DetermineStatus(int claimCount, int hypothesisCount, int findingCount) =>
+        findingCount > 0 ? "findings_produced"
+        : hypothesisCount > 0 ? "no_findings"
         : claimCount > 0 ? "no_hypotheses"
         : "no_claims";
 }
@@ -106,7 +135,9 @@ internal sealed record InferenceExecution(
     [property: JsonPropertyName("claims")] IReadOnlyList<ClaimUnit> Claims,
     [property: JsonPropertyName("discarded_candidates")] IReadOnlyList<DiscardedCandidate> DiscardedCandidates,
     [property: JsonPropertyName("hypotheses")] IReadOnlyList<HypothesisUnit> Hypotheses,
-    [property: JsonPropertyName("discarded_hypotheses")] IReadOnlyList<DiscardedHypothesis> DiscardedHypotheses);
+    [property: JsonPropertyName("discarded_hypotheses")] IReadOnlyList<DiscardedHypothesis> DiscardedHypotheses,
+    [property: JsonPropertyName("findings")] IReadOnlyList<FindingUnit> Findings,
+    [property: JsonPropertyName("discarded_findings")] IReadOnlyList<DiscardedFinding> DiscardedFindings);
 
 internal sealed record InferenceStage(
     [property: JsonPropertyName("name")] string Name,
@@ -119,4 +150,5 @@ internal sealed record InferenceCounts(
     [property: JsonPropertyName("findings")] int Findings,
     [property: JsonPropertyName("abstentions")] int Abstentions,
     [property: JsonPropertyName("discarded_candidates")] int DiscardedCandidates,
-    [property: JsonPropertyName("discarded_hypotheses")] int DiscardedHypotheses);
+    [property: JsonPropertyName("discarded_hypotheses")] int DiscardedHypotheses,
+    [property: JsonPropertyName("discarded_findings")] int DiscardedFindings);

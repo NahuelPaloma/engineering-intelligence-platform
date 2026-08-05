@@ -6,7 +6,8 @@ transforms engineering knowledge into actionable intelligence.
 ## Current Status
 
 VS-001 Context Retrieval Pipeline is complete. Capability-002 now implements the
-deterministic Evidence → Claim → Hypothesis chain, without producing Findings.
+deterministic Evidence → Claim → Hypothesis → Finding chain, without producing
+an Inference Report.
 
 ## Documentation
 
@@ -88,12 +89,13 @@ ranking order, content, metadata, status and evidence without rereading or
 interpreting the repository. Inconsistent inputs fail without producing partial
 context.
 
-Capability-002 Increment 2 derives one provisional Hypothesis from each valid
-document-availability Claim. The fixed Rule preserves the Claim's document Scope
-and adds its own Confidence, mandatory Uncertainty, verification condition and
-falsification condition without interpreting content. `inference-execution.json`
-remains a temporary technical artifact: no Findings or Inference Report exist
-yet.
+Capability-002 Increment 3 derives one provisional Finding from each valid
+document-context Hypothesis. The fixed Rule preserves the exact document Scope
+and complete Evidence trace, and adds Finding-specific Confidence, Uncertainty,
+an open question and applicability limits without interpreting content. The
+Finding is the first consumable reasoning unit, but `inference-execution.json`
+remains a temporary technical artifact: no Inference Report, Recommendation or
+Decision exists yet.
 
 See the [Increment 1 demo](docs/demos/VS-001/increment-01.md) and its
 [example manifest](docs/demos/VS-001/examples/increment-01-manifest.json). The
@@ -121,3 +123,6 @@ The first Evidence-to-Claim transition is demonstrated in
 The first unary Hypothesis is demonstrated in
 [Capability-002 Increment 2](docs/demos/Capability-002/increment-02.md), with an
 [example hypothesis execution](docs/demos/Capability-002/examples/increment-02-inference-execution.json).
+The first consumable Finding is demonstrated in
+[Capability-002 Increment 3](docs/demos/Capability-002/increment-03.md), with an
+[example finding execution](docs/demos/Capability-002/examples/increment-03-inference-execution.json).
