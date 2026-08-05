@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json.Serialization;
 
 namespace Eip.Cli.Inference;
@@ -18,111 +16,61 @@ internal static class InferencePipeline
 
     public static async Task<string> ExecuteAsync(
         string localContextPath,
+        CancellationToken cancellationToken) =>
+        await ExecuteAsync(
+            localContextPath,
+            ExecutionProfileRegistry.Capability002ProfileId,
+            cancellationToken);
+
+    public static async Task<string> ExecuteAsync(
+        string localContextPath,
+        string profileId,
         CancellationToken cancellationToken)
     {
         var input = await InputBoundary.ReadAsync(localContextPath, cancellationToken);
-        var evidence = new List<EvidenceUnit>();
-        var claims = new List<ClaimUnit>();
-        var discardedCandidates = new List<DiscardedCandidate>();
-        foreach (var document in input.Documents)
-        {
-            var applicability = DocumentAvailabilityRule.Evaluate(document);
-            var candidate = ClaimProcessing.CreateCandidate(input.PackId, document, applicability);
-            var decision = ClaimValidation.Decide(candidate);
-            if (decision.Status == "valid")
-            {
-                evidence.Add(decision.Evidence!);
-                claims.Add(decision.Claim!);
-            }
-            else
-            {
-                discardedCandidates.Add(decision.Discard!);
-            }
-        }
-
-        var evidenceById = evidence.ToDictionary(item => item.EvidenceId, StringComparer.Ordinal);
-        var hypotheses = new List<HypothesisUnit>();
-        var discardedHypotheses = new List<DiscardedHypothesis>();
-        foreach (var claim in claims)
-        {
-            var applicability = AvailableDocumentContextRule.Evaluate(claim, evidenceById);
-            var candidate = HypothesisProcessing.CreateCandidate(claim, applicability);
-            var decision = HypothesisValidation.Decide(candidate, claim, evidenceById);
-            if (decision.Status == "valid")
-            {
-                hypotheses.Add(decision.Hypothesis!);
-            }
-            else
-            {
-                discardedHypotheses.Add(decision.Discard!);
-            }
-        }
-
-        var claimsById = claims.ToDictionary(item => item.ClaimId, StringComparer.Ordinal);
-        var findings = new List<FindingUnit>();
-        var discardedFindings = new List<DiscardedFinding>();
-        foreach (var hypothesis in hypotheses)
-        {
-            var applicability = AvailableDocumentContextFindingRule.Evaluate(
-                hypothesis,
-                claimsById,
-                evidenceById);
-            var candidate = FindingProcessing.CreateCandidate(hypothesis, claimsById, applicability);
-            var decision = FindingValidation.Decide(
-                candidate,
-                hypothesis,
-                claimsById,
-                evidenceById);
-            if (decision.Status == "valid")
-            {
-                findings.Add(decision.Finding!);
-            }
-            else
-            {
-                discardedFindings.Add(decision.Discard!);
-            }
-        }
-
-        var contradictions = Array.Empty<ContradictionUnit>();
-        var abstentions = Array.Empty<AbstentionUnit>();
-        var discardedContradictions = Array.Empty<DiscardedReason>();
-        var discardedAbstentions = Array.Empty<DiscardedReason>();
-        var uncertaintySummary = UncertaintyPropagation.Summarize(claims, hypotheses, findings);
-        var confidenceSummary = CreateConfidenceSummary(claims, hypotheses, findings);
-        var coverage = CoverageProcessing.Create(input.Documents, findings);
+        var profile = InferenceEngineExtensionBoundary.ResolveProfile(profileId);
+        var result = InferenceEngineExtensionBoundary.Execute(profile, input);
+        var uncertaintySummary = UncertaintyPropagation.Summarize(
+            result.Claims,
+            result.Hypotheses,
+            result.Findings);
+        var confidenceSummary = CreateConfidenceSummary(
+            result.Claims,
+            result.Hypotheses,
+            result.Findings);
 
         var execution = new InferenceExecution(
-            CreateExecutionId(input.CanonicalContextIdentity),
+            ExecutionIdentity.Create(input.CanonicalContextIdentity, profile),
             input.PackId,
-            ReasoningRuleSetId,
-            DetermineStatus(findings.Count, abstentions),
+            profile.RuleSetId,
+            DetermineStatus(result.Findings.Count, result.Abstentions),
             Stages,
             new InferenceCounts(
-                evidence.Count,
-                claims.Count,
-                hypotheses.Count,
-                findings.Count,
-                0,
-                discardedCandidates.Count,
-                discardedHypotheses.Count,
-                discardedFindings.Count,
-                contradictions.Length,
-                discardedContradictions.Length,
-                discardedAbstentions.Length),
-            evidence,
-            claims,
-            discardedCandidates,
-            hypotheses,
-            discardedHypotheses,
-            findings,
-            discardedFindings,
-            contradictions,
-            abstentions,
+                result.Evidence.Count,
+                result.Claims.Count,
+                result.Hypotheses.Count,
+                result.Findings.Count,
+                result.Abstentions.Count,
+                result.DiscardedCandidates.Count,
+                result.DiscardedHypotheses.Count,
+                result.DiscardedFindings.Count,
+                result.Contradictions.Count,
+                result.DiscardedContradictions.Count,
+                result.DiscardedAbstentions.Count),
+            result.Evidence,
+            result.Claims,
+            result.DiscardedCandidates,
+            result.Hypotheses,
+            result.DiscardedHypotheses,
+            result.Findings,
+            result.DiscardedFindings,
+            result.Contradictions,
+            result.Abstentions,
             uncertaintySummary,
             confidenceSummary,
-            discardedContradictions,
-            discardedAbstentions,
-            coverage,
+            result.DiscardedContradictions,
+            result.DiscardedAbstentions,
+            result.Coverage,
             "reasoning_controls_completed",
             null);
 
@@ -149,14 +97,6 @@ internal static class InferencePipeline
             reportToPublish,
             cancellationToken);
     }
-
-    private static string CreateExecutionId(string canonicalContextIdentity)
-    {
-        var identity = $"{canonicalContextIdentity}\n{InputBoundary.ContractId}\n{ReasoningRuleSetId}";
-        return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(identity)));
-    }
-
-    private const string ReasoningRuleSetId = "capability-002-reasoning-controls-v1";
 
     private static string DetermineStatus(int findingCount, IReadOnlyList<AbstentionUnit> abstentions) =>
         abstentions.Any(item => item.Type == "total") ? "reasoning_totally_abstained"
