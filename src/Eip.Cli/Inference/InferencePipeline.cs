@@ -12,6 +12,7 @@ internal static class InferencePipeline
         new("claim_processing", "completed"),
         new("hypothesis_processing", "completed"),
         new("finding_processing", "completed"),
+        new("reasoning_controls", "completed"),
         new("report_builder", "not_implemented")
     ];
 
@@ -82,11 +83,19 @@ internal static class InferencePipeline
             }
         }
 
+        var contradictions = Array.Empty<ContradictionUnit>();
+        var abstentions = Array.Empty<AbstentionUnit>();
+        var discardedContradictions = Array.Empty<DiscardedReason>();
+        var discardedAbstentions = Array.Empty<DiscardedReason>();
+        var uncertaintySummary = UncertaintyPropagation.Summarize(claims, hypotheses, findings);
+        var confidenceSummary = CreateConfidenceSummary(claims, hypotheses, findings);
+        var coverage = CoverageProcessing.Create(input.Documents, findings);
+
         var execution = new InferenceExecution(
             CreateExecutionId(input.PackId),
             input.PackId,
-            AvailableDocumentContextFindingRule.RuleSetId,
-            DetermineStatus(claims.Count, hypotheses.Count, findings.Count),
+            ReasoningRuleSetId,
+            DetermineStatus(findings.Count, abstentions),
             Stages,
             new InferenceCounts(
                 evidence.Count,
@@ -96,14 +105,25 @@ internal static class InferencePipeline
                 0,
                 discardedCandidates.Count,
                 discardedHypotheses.Count,
-                discardedFindings.Count),
+                discardedFindings.Count,
+                contradictions.Length,
+                discardedContradictions.Length,
+                discardedAbstentions.Length),
             evidence,
             claims,
             discardedCandidates,
             hypotheses,
             discardedHypotheses,
             findings,
-            discardedFindings);
+            discardedFindings,
+            contradictions,
+            abstentions,
+            uncertaintySummary,
+            confidenceSummary,
+            discardedContradictions,
+            discardedAbstentions,
+            coverage,
+            "reasoning_controls_completed");
 
         return await InferenceExecutionWriter.WriteAsync(
             localContextPath,
@@ -113,15 +133,33 @@ internal static class InferencePipeline
 
     private static string CreateExecutionId(string packId)
     {
-        var identity = $"{packId}\n{InputBoundary.ContractId}\n{AvailableDocumentContextFindingRule.RuleSetId}";
+        var identity = $"{packId}\n{InputBoundary.ContractId}\n{ReasoningRuleSetId}";
         return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(identity)));
     }
 
-    private static string DetermineStatus(int claimCount, int hypothesisCount, int findingCount) =>
-        findingCount > 0 ? "findings_produced"
-        : hypothesisCount > 0 ? "no_findings"
-        : claimCount > 0 ? "no_hypotheses"
-        : "no_claims";
+    private const string ReasoningRuleSetId = "capability-002-reasoning-controls-v1";
+
+    private static string DetermineStatus(int findingCount, IReadOnlyList<AbstentionUnit> abstentions) =>
+        abstentions.Any(item => item.Type == "total") ? "reasoning_totally_abstained"
+        : abstentions.Any(item => item.Type == "partial") ? "reasoning_partially_abstained"
+        : findingCount >= 0 ? "reasoning_completed"
+        : throw new InvalidDataException("The reasoning state is invalid.");
+
+    private static ConfidenceSummary CreateConfidenceSummary(
+        IReadOnlyList<ClaimUnit> claims,
+        IReadOnlyList<HypothesisUnit> hypotheses,
+        IReadOnlyList<FindingUnit> findings)
+    {
+        var levels = claims.Select(item => item.Confidence.Level)
+            .Concat(hypotheses.Select(item => item.Confidence.Level))
+            .Concat(findings.Select(item => item.Confidence.Level))
+            .ToArray();
+        return new ConfidenceSummary(
+            levels.Count(item => item == "strong"),
+            levels.Count(item => item == "moderate"),
+            levels.Count(item => item == "weak"),
+            levels.Count(item => item == "insufficient"));
+    }
 }
 
 internal sealed record InferenceExecution(
@@ -137,7 +175,15 @@ internal sealed record InferenceExecution(
     [property: JsonPropertyName("hypotheses")] IReadOnlyList<HypothesisUnit> Hypotheses,
     [property: JsonPropertyName("discarded_hypotheses")] IReadOnlyList<DiscardedHypothesis> DiscardedHypotheses,
     [property: JsonPropertyName("findings")] IReadOnlyList<FindingUnit> Findings,
-    [property: JsonPropertyName("discarded_findings")] IReadOnlyList<DiscardedFinding> DiscardedFindings);
+    [property: JsonPropertyName("discarded_findings")] IReadOnlyList<DiscardedFinding> DiscardedFindings,
+    [property: JsonPropertyName("contradictions")] IReadOnlyList<ContradictionUnit> Contradictions,
+    [property: JsonPropertyName("abstentions")] IReadOnlyList<AbstentionUnit> Abstentions,
+    [property: JsonPropertyName("uncertainty_summary")] IReadOnlyList<UncertaintySummaryItem> UncertaintySummary,
+    [property: JsonPropertyName("confidence_summary")] ConfidenceSummary ConfidenceSummary,
+    [property: JsonPropertyName("discarded_contradictions")] IReadOnlyList<DiscardedReason> DiscardedContradictions,
+    [property: JsonPropertyName("discarded_abstentions")] IReadOnlyList<DiscardedReason> DiscardedAbstentions,
+    [property: JsonPropertyName("coverage")] CoverageSummary Coverage,
+    [property: JsonPropertyName("execution_completeness_state")] string ExecutionCompletenessState);
 
 internal sealed record InferenceStage(
     [property: JsonPropertyName("name")] string Name,
@@ -151,4 +197,7 @@ internal sealed record InferenceCounts(
     [property: JsonPropertyName("abstentions")] int Abstentions,
     [property: JsonPropertyName("discarded_candidates")] int DiscardedCandidates,
     [property: JsonPropertyName("discarded_hypotheses")] int DiscardedHypotheses,
-    [property: JsonPropertyName("discarded_findings")] int DiscardedFindings);
+    [property: JsonPropertyName("discarded_findings")] int DiscardedFindings,
+    [property: JsonPropertyName("contradictions")] int Contradictions,
+    [property: JsonPropertyName("discarded_contradictions")] int DiscardedContradictions,
+    [property: JsonPropertyName("discarded_abstentions")] int DiscardedAbstentions);

@@ -45,6 +45,11 @@ internal static class AvailableDocumentContextFindingRule
             return new(false, "hypothesis_support_incomplete");
         }
 
+        if (!ConfidencePropagation.AllowsDerivation(hypothesis.Confidence))
+        {
+            return new(false, "hypothesis_confidence_insufficient");
+        }
+
         return new(true, null);
     }
 }
@@ -77,6 +82,13 @@ internal static class FindingProcessing
         var statement = CreateStatement(hypothesis.Scope.DocumentPath);
         var openQuestions = ImmutableArray.Create(OpenQuestion);
         var evidenceIds = claim.EvidenceIds.ToImmutableArray();
+        var uncertainty = UncertaintyPropagation.Merge(
+            FindingSupport.RequiredUncertainty,
+            hypothesis.Uncertainty);
+        var confidence = ConfidencePropagation.Derive(
+            FindingSupport.MinimumConfidence,
+            [hypothesis.Confidence],
+            uncertainty.Length > 0);
         var identity = string.Join(
             '\n',
             hypothesis.HypothesisId,
@@ -86,8 +98,8 @@ internal static class FindingProcessing
             AvailableDocumentContextFindingRule.RuleVersion,
             hypothesis.Scope.Type,
             hypothesis.Scope.DocumentPath,
-            SerializeConfidence(FindingSupport.MinimumConfidence),
-            string.Join('|', FindingSupport.RequiredUncertainty),
+            SerializeConfidence(confidence),
+            string.Join('|', uncertainty),
             string.Join('|', openQuestions),
             string.Join('|', ApplicabilityLimits));
         var finding = new FindingUnit(
@@ -99,8 +111,8 @@ internal static class FindingProcessing
             AvailableDocumentContextFindingRule.RuleId,
             AvailableDocumentContextFindingRule.RuleVersion,
             hypothesis.Scope,
-            FindingSupport.MinimumConfidence,
-            FindingSupport.RequiredUncertainty,
+            confidence,
+            uncertainty,
             openQuestions,
             ApplicabilityLimits,
             "candidate");

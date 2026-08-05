@@ -12,6 +12,7 @@ public sealed class InferencePipelineTests
         "claim_processing:completed",
         "hypothesis_processing:completed",
         "finding_processing:completed",
+        "reasoning_controls:completed",
         "report_builder:not_implemented"
     ];
 
@@ -40,12 +41,12 @@ public sealed class InferencePipelineTests
 
             using var document = JsonDocument.Parse(await File.ReadAllBytesAsync(outputPath));
             var execution = document.RootElement;
-            Assert.Equal(FindingRuleSetExecutionId, execution.GetProperty("execution_id").GetString());
+            Assert.Equal(ReasoningRuleSetExecutionId, execution.GetProperty("execution_id").GetString());
             Assert.Equal(PackId, execution.GetProperty("input_pack_id").GetString());
             Assert.Equal(
-                "capability-002-document-context-finding-rules-v1",
+                "capability-002-reasoning-controls-v1",
                 execution.GetProperty("rule_set_id").GetString());
-            Assert.Equal("findings_produced", execution.GetProperty("status").GetString());
+            Assert.Equal("reasoning_completed", execution.GetProperty("status").GetString());
             Assert.Equal(ExpectedStages, ReadStages(execution));
 
             var counts = execution.GetProperty("counts");
@@ -57,6 +58,9 @@ public sealed class InferencePipelineTests
             Assert.Equal(0, counts.GetProperty("discarded_candidates").GetInt32());
             Assert.Equal(0, counts.GetProperty("discarded_hypotheses").GetInt32());
             Assert.Equal(0, counts.GetProperty("discarded_findings").GetInt32());
+            Assert.Equal(0, counts.GetProperty("contradictions").GetInt32());
+            Assert.Equal(0, counts.GetProperty("discarded_contradictions").GetInt32());
+            Assert.Equal(0, counts.GetProperty("discarded_abstentions").GetInt32());
 
             var evidence = Assert.Single(execution.GetProperty("evidence").EnumerateArray());
             var claim = Assert.Single(execution.GetProperty("claims").EnumerateArray());
@@ -149,7 +153,8 @@ public sealed class InferencePipelineTests
                 [
                     "useful_context_contribution_not_verified",
                     "content_and_applicability_not_evaluated",
-                    "consumer_not_confirmed"
+                    "consumer_not_confirmed",
+                    "content_authority_freshness_and_relevance_not_evaluated"
                 ],
                 ReadStrings(finding.GetProperty("uncertainty")));
             Assert.Equal(
@@ -166,6 +171,17 @@ public sealed class InferencePipelineTests
                 ReadStrings(finding.GetProperty("applicability_limits")));
             Assert.Equal("valid", finding.GetProperty("status").GetString());
             Assert.Empty(execution.GetProperty("discarded_findings").EnumerateArray());
+            Assert.Empty(execution.GetProperty("contradictions").EnumerateArray());
+            Assert.Empty(execution.GetProperty("abstentions").EnumerateArray());
+            Assert.Empty(execution.GetProperty("discarded_contradictions").EnumerateArray());
+            Assert.Empty(execution.GetProperty("discarded_abstentions").EnumerateArray());
+            Assert.Equal(4, execution.GetProperty("uncertainty_summary").GetArrayLength());
+            Assert.Equal(1, execution.GetProperty("confidence_summary").GetProperty("strong").GetInt32());
+            Assert.Equal(2, execution.GetProperty("confidence_summary").GetProperty("moderate").GetInt32());
+            Assert.Equal("full", execution.GetProperty("coverage").GetProperty("coverage_status").GetString());
+            Assert.Equal(
+                "reasoning_controls_completed",
+                execution.GetProperty("execution_completeness_state").GetString());
             Assert.False(execution.TryGetProperty("inference_report", out _));
             Assert.DoesNotContain("content that must not be interpreted", await File.ReadAllTextAsync(outputPath));
         }
@@ -244,7 +260,7 @@ public sealed class InferencePipelineTests
             using var document = JsonDocument.Parse(await File.ReadAllBytesAsync(outputPath));
             var execution = document.RootElement;
 
-            Assert.Equal("findings_produced", execution.GetProperty("status").GetString());
+            Assert.Equal("reasoning_completed", execution.GetProperty("status").GetString());
             Assert.Single(execution.GetProperty("evidence").EnumerateArray());
             Assert.Single(execution.GetProperty("claims").EnumerateArray());
             Assert.Single(execution.GetProperty("hypotheses").EnumerateArray());
@@ -279,7 +295,7 @@ public sealed class InferencePipelineTests
             using var document = JsonDocument.Parse(await File.ReadAllBytesAsync(outputPath));
             var execution = document.RootElement;
 
-            Assert.Equal("no_claims", execution.GetProperty("status").GetString());
+            Assert.Equal("reasoning_completed", execution.GetProperty("status").GetString());
             Assert.Empty(execution.GetProperty("evidence").EnumerateArray());
             Assert.Empty(execution.GetProperty("claims").EnumerateArray());
             Assert.Empty(execution.GetProperty("hypotheses").EnumerateArray());
@@ -332,6 +348,7 @@ public sealed class InferencePipelineTests
                 .GetProperty("finding_id").GetString());
             Assert.NotEqual(ClaimRuleSetExecutionId, HypothesisRuleSetExecutionId);
             Assert.NotEqual(HypothesisRuleSetExecutionId, FindingRuleSetExecutionId);
+            Assert.NotEqual(FindingRuleSetExecutionId, ReasoningRuleSetExecutionId);
         }
         finally
         {
@@ -702,6 +719,7 @@ public sealed class InferencePipelineTests
     private const string ClaimRuleSetExecutionId = "1969c9398663134ffa16150a95895cfdde875fa3a49bb9586241a07c9bf95d72";
     private const string HypothesisRuleSetExecutionId = "74db47e4af789d056f1f4b318638313df357ab48c654dc6b4b87d33fff01be68";
     private const string FindingRuleSetExecutionId = "97dc00f0cdf225591e8b1e3c674c4d9164504fb023b47736081add877145a7dc";
+    private const string ReasoningRuleSetExecutionId = "6d155124967a6661350c6b7946ecbb6541e8913efb2aaf2371328472511bff80";
 
     private static Cli.Inference.EvidenceUnit CreateEvidence(
         string evidenceId,

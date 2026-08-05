@@ -29,6 +29,11 @@ internal static class AvailableDocumentContextRule
             return new HypothesisRuleApplicability(false, "claim_traceability_invalid");
         }
 
+        if (!ConfidencePropagation.AllowsDerivation(claim.Confidence))
+        {
+            return new HypothesisRuleApplicability(false, "claim_confidence_insufficient");
+        }
+
         return claim.Scope == evidence.Scope
             && claim.Scope.Type == "document"
             && !string.IsNullOrWhiteSpace(claim.Scope.DocumentPath)
@@ -58,6 +63,13 @@ internal static class HypothesisProcessing
         }
 
         var statement = $"{StatementPrefix}{claim.Scope.DocumentPath}{StatementSuffix}";
+        var uncertainty = UncertaintyPropagation.Merge(
+            HypothesisSupport.RequiredUncertainty,
+            claim.Uncertainty);
+        var confidence = ConfidencePropagation.Derive(
+            HypothesisSupport.MinimumConfidence,
+            [claim.Confidence],
+            uncertainty.Length > 0);
         var hypothesisId = Hash(
             $"{claim.ClaimId}\n{AvailableDocumentContextRule.RuleId}\n"
             + $"{AvailableDocumentContextRule.RuleVersion}\n{claim.Scope.Type}\n"
@@ -69,8 +81,8 @@ internal static class HypothesisProcessing
             AvailableDocumentContextRule.RuleId,
             AvailableDocumentContextRule.RuleVersion,
             claim.Scope,
-            HypothesisSupport.MinimumConfidence,
-            HypothesisSupport.RequiredUncertainty,
+            confidence,
+            uncertainty,
             VerificationCondition,
             FalsificationCondition,
             "candidate");
