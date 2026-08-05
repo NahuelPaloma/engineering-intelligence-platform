@@ -4,7 +4,7 @@
 | -------------------- | ----------------------------------------- |
 | Identificador        | TD-003                                    |
 | Nombre               | Inference Report                          |
-| Estado               | **Proposed**                              |
+| Estado               | **Accepted**                              |
 | Capability           | Capability-002 — Inference Engine         |
 | Tipo                 | Diseño técnico                            |
 | Owner propuesto      | Engineering Platform                      |
@@ -110,8 +110,13 @@ Abstention total íntegra y explicada.
 
 ## 5. Salida
 
-La salida de Inference Report Builder es un **reporte candidato conceptual**.
-Debe permitir que Validation determine, sin consultar fuentes externas:
+Inference Report Builder produce uno de dos resultados técnicos: un **reporte
+candidato conceptual** íntegro o un **resultado de construcción fallida** con
+causa normalizada. Este último no es un Inference Report ni una clasificación
+contractual `invalid`.
+
+El reporte candidato debe permitir que Validation determine, sin consultar
+fuentes externas:
 
 - a qué entrada y ejecución corresponde;
 - qué Rules y condiciones gobernaron el razonamiento;
@@ -120,11 +125,16 @@ Debe permitir que Validation determine, sin consultar fuentes externas:
 - qué Confidence y Uncertainty limitan cada inferencia;
 - qué Contradictions y Abstentions permanecen abiertas;
 - qué alcance fue procesado;
-- si el resultado es completo, incompleto o inválido y por qué.
+- qué hechos permiten a Validation clasificarlo como completo, incompleto o
+  inválido y por qué.
 
 Un reporte candidato no es publicable por sí mismo. Sólo Validation puede
 autorizar su estado contractual final. Un resultado inválido se rechaza y nunca
 cruza el límite del Inference Report Contract.
+
+Cuando no puede construir un candidato íntegro, Inference Report Builder no
+produce candidato ni publica nada; entrega el resultado de construcción fallida
+a Pipeline y Validation.
 
 Este documento no define la representación física de la salida.
 
@@ -136,8 +146,11 @@ Inference Report Builder:
 
 - consolida unidades válidas y estados explícitos;
 - conserva identidades, relaciones, orden y Scope;
-- calcula cobertura y propone completitud desde resultados declarados;
-- produce un reporte candidato;
+- calcula cobertura y reúne los hechos que Validation usa para clasificar
+  completitud;
+- produce un reporte candidato íntegro o un resultado técnico de construcción
+  fallida;
+- decide únicamente si la construcción técnica del candidato es posible;
 - no decide validez final ni reabre decisiones anteriores.
 
 Inference Report Builder es funcionalmente puro: la misma entrada cerrada
@@ -149,12 +162,18 @@ declarados.
 
 Validation es la única autoridad que:
 
+- clasifica un candidato construido como completo, incompleto o inválido;
 - acepta un reporte como completo;
 - acepta un reporte como incompleto pero válido;
 - rechaza un reporte inválido;
 - impide publicación parcial o inconsistente.
 
-Validation no completa información ni crea unidades durante esta decisión.
+Validation también recibe las causas normalizadas de una construcción fallida y
+dispone el resultado contractual sin tratar esa falla como un Inference Report
+inválido publicado. Validation no completa información ni crea unidades durante
+esta decisión. Inference Report Builder y Validation no comparten ni duplican
+autoridad: uno determina si puede construir; la otra clasifica y autoriza la
+publicación.
 
 ### 6.3 Módulos anteriores
 
@@ -288,11 +307,18 @@ error técnico. Una Contradiction puede volver un reporte incompleto respecto de
 una pregunta o contribuir a una Abstention; esas decisiones deben llegar
 explícitas desde Validation.
 
+Las listas de Confidence, Uncertainty y Contradiction de TD-003 son requisitos
+técnicos de preservación y no redefinen su estructura normativa. La Inference
+Engine Reasoning Specification continúa siendo la única fuente normativa; toda
+evolución gobernada de esos conceptos aplica aunque TD-003 no repita cada
+propiedad.
+
 ## 12. Completitud, incompletitud e invalidez
 
 ### 12.1 Completo
 
-Inference Report Builder propone estado completo cuando:
+El candidato aporta condiciones para que Validation lo clasifique como completo
+cuando:
 
 - toda Evidence elegible fue procesada bajo las Rules vigentes;
 - todas las etapas requeridas terminaron;
@@ -306,17 +332,18 @@ Completo no significa verdadero, exhaustivo ni libre de incertidumbre.
 
 ### 12.2 Incompleto pero válido
 
-Propone estado incompleto cuando una limitación conocida impidió cubrir parte
-del alcance, pero cada unidad publicada permanece íntegra. Debe conservar qué
-parte no se cubrió, la causa, las unidades potencialmente afectadas, las
-garantías que continúan vigentes y aquello que no puede concluirse.
+El candidato aporta condiciones para que Validation lo clasifique como
+incompleto cuando una limitación conocida impidió cubrir parte del alcance, pero
+cada unidad publicada permanece íntegra. Debe conservar qué parte no se cubrió,
+la causa, las unidades potencialmente afectadas, las garantías que continúan
+vigentes y aquello que no puede concluirse.
 
 La incompletitud no relaja invariantes ni permite omitir una incertidumbre.
 
 ### 12.3 Inválido
 
-El candidato es inválido cuando no puede cumplir una garantía esencial, entre
-otras causas:
+Validation clasifica un candidato construido como inválido cuando éste no cumple
+una garantía contractual esencial, entre otras causas:
 
 - entrada o ejecución no identificables;
 - mezcla de ejecuciones;
@@ -327,8 +354,13 @@ otras causas:
 - estado de etapa incompatible con la cobertura declarada;
 - contenido expresamente excluido por el contrato.
 
-Un reporte inválido se rechaza de forma cerrada. No existe una versión parcial
-publicable de un candidato estructural o epistemológicamente inválido.
+Un reporte inválido se rechaza de forma cerrada por decisión de Validation. No
+existe una versión parcial publicable de un candidato estructural o
+epistemológicamente inválido.
+
+Si una condición impide formar un candidato estructuralmente íntegro, Inference
+Report Builder emite en cambio un resultado técnico de construcción fallida. No
+declara que exista un Inference Report inválido y no publica nada.
 
 ## 13. Determinismo y reproducibilidad
 
@@ -381,12 +413,15 @@ Rechaza como entrada de consolidación:
 - comentarios humanos y contenido de presentación.
 
 Estas comprobaciones no reemplazan la validación final. Inference Report Builder
-detecta que no puede construir un candidato íntegro; Validation conserva la
-autoridad de aceptar o rechazar el resultado contractual.
+decide únicamente si puede construir un candidato íntegro. Si no puede, no
+produce candidato y entrega a Pipeline y Validation un resultado técnico de
+construcción fallida con causa normalizada. Si puede, Validation conserva la
+autoridad exclusiva de clasificarlo como completo, incompleto o inválido y de
+autorizar o rechazar su publicación.
 
 ## 15. Manejo de errores y degradación
 
-Detienen la construcción y prohíben publicar:
+Inference Report Builder detiene la construcción ante:
 
 - identidad de entrada o ejecución inválida;
 - conjunto de Rules o políticas no fijado;
@@ -395,6 +430,12 @@ Detienen la construcción y prohíben publicar:
 - trazabilidad esencial rota;
 - inconsistencia entre estados y cobertura;
 - imposibilidad de garantizar publicación íntegra.
+
+En estos casos no produce un reporte candidato. Emite un resultado técnico de
+construcción fallida con causa normalizada para Pipeline y Validation, no
+clasifica un Inference Report como inválido y no publica nada. Validation
+dispone el resultado contractual y conserva la autoridad exclusiva sobre
+publicación.
 
 Producen un candidato incompleto sólo las degradaciones ya declaradas que
 permiten conservar todas las garantías de las unidades publicadas.
@@ -497,6 +538,11 @@ Este roadmap no altera la secuencia Accepted de TD-002. El tratamiento
 transversal de Confidence, Uncertainty, Contradiction y Abstention del
 Incremento 4 es prerrequisito para publicar el Inference Report del
 Incremento 5.
+
+El Paso 1 depende de que el Incremento 3 de TD-002 haya producido Findings
+válidos. Los pasos que incorporan Confidence, Uncertainty, Contradiction y
+Abstention dependen del Incremento 4 de TD-002. La publicación contractual final
+corresponde al Incremento 5 de TD-002.
 
 ### Paso 0 — Frontera vacía de Inference Report Builder
 
@@ -613,6 +659,7 @@ Permanecen abiertas para decisiones posteriores:
 
 ## 24. Historial del documento
 
-| Fecha      | Cambio                      | Estado   |
-| ---------- | --------------------------- | -------- |
-| 2026-08-04 | Propuesta inicial de TD-003 | Proposed |
+| Fecha      | Cambio                                     | Estado   |
+| ---------- | ------------------------------------------ | -------- |
+| 2026-08-04 | Propuesta inicial de TD-003                | Proposed |
+| 2026-08-04 | Promoción formal del diseño técnico TD-003 | Accepted |
