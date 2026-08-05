@@ -13,7 +13,7 @@ internal static class InferencePipeline
         new("hypothesis_processing", "completed"),
         new("finding_processing", "completed"),
         new("reasoning_controls", "completed"),
-        new("report_builder", "not_implemented")
+        new("report_builder", "completed")
     ];
 
     public static async Task<string> ExecuteAsync(
@@ -123,11 +123,30 @@ internal static class InferencePipeline
             discardedContradictions,
             discardedAbstentions,
             coverage,
-            "reasoning_controls_completed");
+            "reasoning_controls_completed",
+            null);
 
-        return await InferenceExecutionWriter.WriteAsync(
+        var buildResult = InferenceReportBuilder.Build(execution);
+        var validation = InferenceReportValidation.Decide(buildResult);
+        var reportToPublish = validation.PublicationAuthorized ? validation.Report : null;
+
+        execution = execution with
+        {
+            ExecutionCompletenessState = reportToPublish is not null
+                ? "inference_report_published"
+                : "inference_report_not_published",
+            PublishedReport = reportToPublish is null
+                ? null
+                : new PublishedReportReference(
+                    reportToPublish.ReportId,
+                    "inference-report.json",
+                    reportToPublish.Status)
+        };
+
+        return await InferenceExecutionWriter.WriteAllAsync(
             localContextPath,
             execution,
+            reportToPublish,
             cancellationToken);
     }
 
@@ -183,7 +202,8 @@ internal sealed record InferenceExecution(
     [property: JsonPropertyName("discarded_contradictions")] IReadOnlyList<DiscardedReason> DiscardedContradictions,
     [property: JsonPropertyName("discarded_abstentions")] IReadOnlyList<DiscardedReason> DiscardedAbstentions,
     [property: JsonPropertyName("coverage")] CoverageSummary Coverage,
-    [property: JsonPropertyName("execution_completeness_state")] string ExecutionCompletenessState);
+    [property: JsonPropertyName("execution_completeness_state")] string ExecutionCompletenessState,
+    [property: JsonPropertyName("published_report")] PublishedReportReference? PublishedReport);
 
 internal sealed record InferenceStage(
     [property: JsonPropertyName("name")] string Name,

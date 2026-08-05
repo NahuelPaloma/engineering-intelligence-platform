@@ -13,7 +13,7 @@ public sealed class InferencePipelineTests
         "hypothesis_processing:completed",
         "finding_processing:completed",
         "reasoning_controls:completed",
-        "report_builder:not_implemented"
+        "report_builder:completed"
     ];
 
     private static readonly string[] RetrievalArtifactNames =
@@ -180,8 +180,30 @@ public sealed class InferencePipelineTests
             Assert.Equal(2, execution.GetProperty("confidence_summary").GetProperty("moderate").GetInt32());
             Assert.Equal("full", execution.GetProperty("coverage").GetProperty("coverage_status").GetString());
             Assert.Equal(
-                "reasoning_controls_completed",
+                "inference_report_published",
                 execution.GetProperty("execution_completeness_state").GetString());
+            var publishedReport = execution.GetProperty("published_report");
+            Assert.Equal("inference-report.json", publishedReport.GetProperty("path").GetString());
+            Assert.Equal("complete", publishedReport.GetProperty("status").GetString());
+            var reportPath = Path.Combine(root, "inference-report.json");
+            Assert.True(File.Exists(reportPath));
+            using var reportDocument = JsonDocument.Parse(await File.ReadAllBytesAsync(reportPath));
+            Assert.Equal(
+                execution.GetProperty("execution_id").GetString(),
+                reportDocument.RootElement.GetProperty("execution_id").GetString());
+            Assert.Equal(
+                publishedReport.GetProperty("report_id").GetString(),
+                reportDocument.RootElement.GetProperty("report_id").GetString());
+            AssertJsonEqual(finding, reportDocument.RootElement.GetProperty("findings")[0]);
+            AssertJsonEqual(
+                evidence,
+                reportDocument.RootElement.GetProperty("traceability_summary").GetProperty("evidence")[0]);
+            AssertJsonEqual(
+                claim,
+                reportDocument.RootElement.GetProperty("traceability_summary").GetProperty("claims")[0]);
+            AssertJsonEqual(
+                hypothesis,
+                reportDocument.RootElement.GetProperty("traceability_summary").GetProperty("hypotheses")[0]);
             Assert.False(execution.TryGetProperty("inference_report", out _));
             Assert.DoesNotContain("content that must not be interpreted", await File.ReadAllTextAsync(outputPath));
         }
@@ -323,6 +345,8 @@ public sealed class InferencePipelineTests
                 localContextPath,
                 CancellationToken.None);
             var first = await File.ReadAllBytesAsync(outputPath);
+            var reportPath = Path.Combine(root, "inference-report.json");
+            var firstReport = await File.ReadAllBytesAsync(reportPath);
             using var firstDocument = JsonDocument.Parse(first);
             var firstEvidenceId = firstDocument.RootElement.GetProperty("evidence")[0]
                 .GetProperty("evidence_id").GetString();
@@ -335,9 +359,11 @@ public sealed class InferencePipelineTests
 
             await Cli.Inference.InferencePipeline.ExecuteAsync(localContextPath, CancellationToken.None);
             var second = await File.ReadAllBytesAsync(outputPath);
+            var secondReport = await File.ReadAllBytesAsync(reportPath);
             using var secondDocument = JsonDocument.Parse(second);
 
             Assert.Equal(first, second);
+            Assert.Equal(firstReport, secondReport);
             Assert.Equal(firstEvidenceId, secondDocument.RootElement.GetProperty("evidence")[0]
                 .GetProperty("evidence_id").GetString());
             Assert.Equal(firstClaimId, secondDocument.RootElement.GetProperty("claims")[0]
@@ -431,6 +457,7 @@ public sealed class InferencePipelineTests
                 Cli.Inference.InferencePipeline.ExecuteAsync(localContextPath, CancellationToken.None));
 
             Assert.False(File.Exists(Path.Combine(root, "inference-execution.json")));
+            Assert.False(File.Exists(Path.Combine(root, "inference-report.json")));
         }
         finally
         {
@@ -457,6 +484,7 @@ public sealed class InferencePipelineTests
             Assert.DoesNotContain("sensitive", exception.ToString(), StringComparison.Ordinal);
             Assert.DoesNotContain(root, exception.ToString(), StringComparison.Ordinal);
             Assert.False(File.Exists(Path.Combine(root, "inference-execution.json")));
+            Assert.False(File.Exists(Path.Combine(root, "inference-report.json")));
         }
         finally
         {
@@ -501,6 +529,7 @@ public sealed class InferencePipelineTests
             Assert.Equal("The inference execution could not be written.", exception.Message);
             Assert.DoesNotContain(root, exception.ToString(), StringComparison.Ordinal);
             Assert.False(File.Exists(Path.Combine(root, "inference-execution.json")));
+            Assert.False(File.Exists(Path.Combine(root, "inference-report.json")));
         }
         finally
         {
@@ -774,6 +803,9 @@ public sealed class InferencePipelineTests
 
     private static string[] ReadStrings(JsonElement array) =>
         array.EnumerateArray().Select(item => item.GetString()!).ToArray();
+
+    private static void AssertJsonEqual(JsonElement expected, JsonElement actual) =>
+        Assert.True(JsonNode.DeepEquals(JsonNode.Parse(expected.GetRawText()), JsonNode.Parse(actual.GetRawText())));
 
     private static async Task<string> WriteLocalContextAsync(
         string root,

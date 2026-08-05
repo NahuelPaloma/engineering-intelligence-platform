@@ -89,12 +89,12 @@ ranking order, content, metadata, status and evidence without rereading or
 interpreting the repository. Inconsistent inputs fail without producing partial
 context.
 
-Capability-002 Increment 4 adds deterministic propagation of Confidence and
-Uncertainty, explicit Contradiction and local, partial and total Abstention,
-plus technical coverage. Validation remains the only authority over reasoning
-states. `inference-execution.json` remains a temporary technical artifact:
-TD-003 and the Inference Report Builder belong to Increment 5, and no Inference
-Report, Recommendation or Decision exists yet.
+Capability-002 is implemented end to end. The Inference Engine now transforms a
+valid `local-context.json` into a deterministic, contractually validated
+`inference-report.json`. Inference Report Builder remains functionally pure and
+Validation alone classifies and authorizes publication. The separate
+`inference-execution.json` technical record references the published report.
+Neither artifact contains Recommendations or Decisions.
 
 See the [Increment 1 demo](docs/demos/VS-001/increment-01.md) and its
 [example manifest](docs/demos/VS-001/examples/increment-01-manifest.json). The
@@ -128,3 +128,6 @@ The first consumable Finding is demonstrated in
 Transversal reasoning controls are demonstrated in
 [Capability-002 Increment 4](docs/demos/Capability-002/increment-04.md), with an
 [example controlled execution](docs/demos/Capability-002/examples/increment-04-inference-execution.json).
+The completed Inference Engine is demonstrated in
+[Capability-002 Increment 5](docs/demos/Capability-002/increment-05.md), with an
+[example official report](docs/demos/Capability-002/examples/increment-05-inference-report.json).

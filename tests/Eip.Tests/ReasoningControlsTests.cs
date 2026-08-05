@@ -148,7 +148,7 @@ public sealed class ReasoningControlsTests
 
             Assert.Contains("\"coverage_status\": \"none\"", text, StringComparison.Ordinal);
             Assert.Contains("\"abstentions\": []", text, StringComparison.Ordinal);
-            Assert.DoesNotContain("inference_report", text, StringComparison.Ordinal);
+            Assert.True(File.Exists(Path.Combine(root, "inference-report.json")));
         }
         finally
         {
