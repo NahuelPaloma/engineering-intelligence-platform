@@ -5,17 +5,17 @@
 | Contrato             | `contract-change-detection`                |
 | Resultado conceptual | `contract-change-report`                   |
 | Versión conceptual   | 1                                          |
-| Estado               | **Proposed**                               |
+| Estado               | **Accepted**                               |
 | Productor            | Capability-003 — Contract Change Detection |
 | Consumidor inicial   | Capability-004                             |
 | Audiencia            | Capabilities consumidoras                  |
-| Última actualización | 4 de agosto de 2026                        |
+| Última actualización | 5 de agosto de 2026                        |
 
 ---
 
 ## 1. Propósito
 
-Este documento define el contrato conceptual oficial propuesto entre:
+Este documento define el contrato conceptual oficial entre:
 
 ```text
 Capability-003 — Contract Change Detection
@@ -53,7 +53,7 @@ Este contrato deriva de:
 5. Capability-002 — Inference Engine, Accepted;
 6. Inference Report Contract, versión conceptual 1, Accepted;
 7. Inference Engine Reasoning Specification, Accepted;
-8. Capability-003 — Contract Change Detection, Proposed.
+8. Capability-003 — Contract Change Detection, Accepted.
 
 Local Context Contract gobierna la Evidence que atraviesa Context Retrieval.
 Inference Report Contract gobierna el resultado genérico de Capability-002. Este
@@ -79,10 +79,9 @@ Capability-004
 Este flujo es conceptual. No decide si algunas responsabilidades comparten una
 implementación ni agrega una nueva entrada física a Capability-002.
 
-La futura Contract Change Detection Reasoning Specification será la fuente
+Contract Change Detection Reasoning Specification, Accepted, es la fuente
 normativa del ciclo de vida y las reglas de razonamiento específicas de este
-dominio. Hasta que exista y sea Accepted, este contrato no autoriza Rules ni
-implementación.
+dominio. Este contrato no autoriza por sí mismo Rules ni implementación.
 
 ## 3. Productor único
 
@@ -906,7 +905,7 @@ migración y ADR.
 
 ## 31. Versionado
 
-La versión conceptual inicial propuesta es **1**.
+La versión conceptual inicial Accepted es **1**.
 
 La versión identifica el significado normativo del contrato, no un campo ni un
 formato físico. Este documento no decide cómo se representa o transporta la
@@ -954,13 +953,13 @@ elevarse al contrato sólo si cambia una garantía transversal.
 La evolución esperada sigue esta secuencia:
 
 ```text
-Capability-003 Proposed
+Capability-003 Accepted
           ↓
-Contract Change Detection Contract Proposed
+Contract Change Detection Contract Accepted
           ↓
-Reasoning Specification Proposed
+Reasoning Specification Accepted
           ↓
-TD-004 Proposed
+TD-004 Accepted
           ↓
 implementación incremental
           ↓
@@ -1065,3 +1064,4 @@ mención.
 | Fecha      | Cambio                                                  | Estado   |
 | ---------- | ------------------------------------------------------- | -------- |
 | 2026-08-04 | Propuesta inicial de Contract Change Detection Contract | Proposed |
+| 2026-08-05 | Promoción formal coordinada                             | Accepted |

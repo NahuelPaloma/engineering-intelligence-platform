@@ -4,17 +4,17 @@
 | -------------------- | --------------------------------------------------- |
 | Identificador        | Capability-003                                      |
 | Nombre               | Contract Change Detection                           |
-| Estado               | **Proposed**                                        |
+| Estado               | **Accepted**                                        |
 | Tipo                 | Capability transversal de detección y clasificación |
 | Owner propuesto      | Engineering Platform                                |
 | Audiencia            | Product, Architecture, Engineering y Risk           |
-| Última actualización | 4 de agosto de 2026                                 |
+| Última actualización | 5 de agosto de 2026                                 |
 
 ---
 
 ## 1. Propósito y autoridad
 
-Este documento define el dominio propuesto de **Contract Change Detection** para
+Este documento define el dominio oficial de **Contract Change Detection** para
 la Engineering Intelligence Platform.
 
 Su propósito es determinar, exclusivamente a partir de Evidence autorizada:
@@ -1115,21 +1115,21 @@ convertirlas en breaking changes.
 
 | ID         | Decisión                                                       | Estado   |
 | ---------- | -------------------------------------------------------------- | -------- |
-| CAP003-D01 | La capability detecta candidatura, tipo y suficiencia          | Proposed |
-| CAP003-D02 | Detectar modificación no implica cambio semántico              | Proposed |
-| CAP003-D03 | Breaking Change Detection pertenece a una capability posterior | Proposed |
-| CAP003-D04 | `modified_files` es la única Evidence autorizada actualmente   | Proposed |
-| CAP003-D05 | Ausencia y colección vacía poseen significados distintos       | Proposed |
-| CAP003-D06 | El núcleo es agnóstico de dominio y neutral al formato         | Proposed |
-| CAP003-D07 | Las Rules específicas son externas, gobernadas y versionadas   | Proposed |
-| CAP003-D08 | Unknown y Ambiguous son resultados legítimos                   | Proposed |
-| CAP003-D09 | Detection Sufficiency y Analysis Readiness son distintas       | Proposed |
-| CAP003-D10 | El futuro límite se denomina `contract-change-report`          | Proposed |
-| CAP003-D11 | No existe acceso a fuentes ni lectura de contenido             | Proposed |
-| CAP003-D12 | Ningún resultado contiene severidad, Recommendation o Decision | Proposed |
+| CAP003-D01 | La capability detecta candidatura, tipo y suficiencia          | Accepted |
+| CAP003-D02 | Detectar modificación no implica cambio semántico              | Accepted |
+| CAP003-D03 | Breaking Change Detection pertenece a una capability posterior | Accepted |
+| CAP003-D04 | `modified_files` es la única Evidence autorizada actualmente   | Accepted |
+| CAP003-D05 | Ausencia y colección vacía poseen significados distintos       | Accepted |
+| CAP003-D06 | El núcleo es agnóstico de dominio y neutral al formato         | Accepted |
+| CAP003-D07 | Las Rules específicas son externas, gobernadas y versionadas   | Accepted |
+| CAP003-D08 | Unknown y Ambiguous son resultados legítimos                   | Accepted |
+| CAP003-D09 | Detection Sufficiency y Analysis Readiness son distintas       | Accepted |
+| CAP003-D10 | El futuro límite se denomina `contract-change-report`          | Accepted |
+| CAP003-D11 | No existe acceso a fuentes ni lectura de contenido             | Accepted |
+| CAP003-D12 | Ningún resultado contiene severidad, Recommendation o Decision | Accepted |
 
-Estas decisiones permanecen Proposed hasta la revisión y promoción formal del
-documento.
+Estas decisiones quedaron Accepted mediante la promoción coordinada del
+documento y sus dependencias normativas.
 
 ## 29. Decisiones postergadas
 
@@ -1217,3 +1217,4 @@ Una evolución futura requiere revisar explícitamente:
 | Fecha      | Cambio                                                          | Estado   |
 | ---------- | --------------------------------------------------------------- | -------- |
 | 2026-08-04 | Propuesta inicial de Capability-003 — Contract Change Detection | Proposed |
+| 2026-08-05 | Promoción formal coordinada                                     | Accepted |

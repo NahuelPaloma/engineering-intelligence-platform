@@ -4,19 +4,19 @@
 | -------------------- | --------------------------------------------------- |
 | Documento            | Contract Change Detection Reasoning Specification   |
 | Capability           | Capability-003 — Contract Change Detection          |
-| Estado               | **Proposed**                                        |
+| Estado               | **Accepted**                                        |
 | Tipo                 | Especificación normativa de razonamiento de dominio |
 | Owner propuesto      | Engineering Platform                                |
-| Última actualización | 4 de agosto de 2026                                 |
+| Última actualización | 5 de agosto de 2026                                 |
 
 ---
 
 ## 1. Propósito
 
-Este documento define el modelo oficial propuesto de razonamiento de
-Capability-003. Establece cuándo nace cada unidad de Contract Change Detection,
-qué condiciones mantienen su validez, cómo se relaciona con otras unidades y
-cuándo debe limitarse, descartarse o producir Abstention.
+Este documento define el modelo oficial de razonamiento de Capability-003.
+Establece cuándo nace cada unidad de Contract Change Detection, qué condiciones
+mantienen su validez, cómo se relaciona con otras unidades y cuándo debe
+limitarse, descartarse o producir Abstention.
 
 Es la **autoridad normativa única** para el razonamiento específico de
 Capability-003.
@@ -42,7 +42,7 @@ Esta especificación deriva de:
 6. Inference Report Contract, versión conceptual 1;
 7. Inference Engine Reasoning Specification;
 8. Capability-003 — Contract Change Detection;
-9. Contract Change Detection Contract, versión conceptual 1 Proposed.
+9. Contract Change Detection Contract, versión conceptual 1, Accepted.
 
 Los contratos gobiernan las fronteras. Capability-003 gobierna propósito,
 vocabulario y límites. La Inference Engine Reasoning Specification continúa
@@ -1628,3 +1628,4 @@ esta especificación.
 | Fecha      | Cambio                                                                 | Estado   |
 | ---------- | ---------------------------------------------------------------------- | -------- |
 | 2026-08-04 | Propuesta inicial de Contract Change Detection Reasoning Specification | Proposed |
+| 2026-08-05 | Promoción formal coordinada                                            | Accepted |
